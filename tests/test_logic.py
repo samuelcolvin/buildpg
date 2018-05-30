@@ -71,6 +71,18 @@ TESTS = [
         'expected_query': 'func args: left(x || $1, y + $2 + $3)',
         'expected_params': ['xx', 4, 5],
     },
+    {
+        'template': 'abs neg: {{ var }}',
+        'var': funcs.abs(-S(4)),
+        'expected_query': 'abs neg: @ -$1',
+        'expected_params': [4],
+    },
+    {
+        'template': 'abs brackets: {{ var }}',
+        'var': funcs.abs(S(4) + S(5)),
+        'expected_query': 'abs brackets: @ ($1 + $2)',
+        'expected_params': [4, 5],
+    },
 ]
 
 
@@ -97,6 +109,9 @@ def test_render(template, var, expected_query, expected_params):
     (V('x').contained_by(V('y')), 'x <@ y'),
     (V('x').like('y'), 'x LIKE $1'),
     (V('x').cat('y'), 'x || $1'),
+    (funcs.sqrt(4), '|/ $1'),
+    (funcs.abs(4), '@ $1'),
+    (funcs.factorial(4), '$1 ! '),
     (funcs.upper('a'), 'upper($1)'),
     (funcs.lower('a'), 'lower($1)'),
     (funcs.lower('a'), 'lower($1)'),

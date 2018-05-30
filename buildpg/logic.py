@@ -35,15 +35,21 @@ class Operator(str, Enum):
     contained_by = '<@'
     like = 'LIKE'
     cat = '||'
-    sqrt = '|/'       # single arg TODO move to functions
-    abs = '@'         # single arg
-    factorial = '!!'  # single arg, use prefix operator for simplicity
+    in_ = 'IN'
+    from_ = 'FROM'
+    factorial = '!'
+
+
+class LeftOperator(str, Enum):
+    neg = '-'
+    sqrt = '|/ '
+    abs = '@ '
 
 
 class SqlBlock(Component):
     __slots__ = 'v1', 'op', 'v2'
 
-    def __init__(self, v1, *, op: Operator=None, v2=None):
+    def __init__(self, v1, *, op=None, v2=None):
         self.v1 = v1
         self.op = op
         self.v2 = v2
@@ -99,6 +105,21 @@ class SqlBlock(Component):
     def __pow__(self, other):
         return self.fill(Operator.pow, other)
 
+    def __invert__(self):
+        return Not(self)
+
+    def __neg__(self):
+        return LeftOp(LeftOperator.neg, self)
+
+    def sqrt(self):
+        return LeftOp(LeftOperator.sqrt, self)
+
+    def abs(self):
+        return LeftOp(LeftOperator.abs, self)
+
+    def factorial(self):
+        return self.fill(Operator.factorial)
+
     def contains(self, other):
         return self.fill(Operator.contains, other)
 
@@ -111,11 +132,14 @@ class SqlBlock(Component):
     def cat(self, other):
         return self.fill(Operator.cat, other)
 
-    def __invert__(self):
-        return Not(self)
+    def in_(self, other):
+        return self.fill(Operator.in_, other)
+
+    def from_(self, other):
+        return self.fill(Operator.from_, other)
 
     def render(self):
-        if isinstance(self.v1, Component) and getattr(self.v1, 'op', None) != self.op:
+        if self.op and isinstance(self.v1, SqlBlock) and getattr(self.v1, 'op', None) != self.op:
             yield Literal('(')
             yield self.v1
             yield Literal(')')
@@ -128,20 +152,35 @@ class SqlBlock(Component):
 
 
 class Func(SqlBlock):
-    __slots__ = 'func', 'args'
+    allow_unsafe = False
 
     def __init__(self, func, *args):
-        check_word(func)
-        self.func = func
-        self.args = args
+        if not self.allow_unsafe:
+            check_word(func)
+        super().__init__(args, op=func)
 
     def fill(self, op: Operator, v2=None):
         return SqlBlock(self, op=op, v2=v2)
 
     def render(self):
-        yield Literal(self.func + '(')
-        yield from yield_sep(self.args)
+        yield Literal(self.op + '(')
+        yield from yield_sep(self.v1)
         yield Literal(')')
+
+
+class LeftOp(Func):
+    allow_unsafe = True
+
+    def render(self):
+        arg = self.v1[0]
+        arg_op = getattr(arg, 'op', None)
+        if arg_op and not isinstance(arg_op, LeftOperator):
+            yield Literal(self.op.value + '(')
+            yield arg
+            yield Literal(')')
+        else:
+            yield Literal(self.op.value)
+            yield arg
 
 
 class Not(Func):
@@ -149,7 +188,7 @@ class Not(Func):
         super().__init__('NOT', v)
 
     def __invert__(self):
-        return self.args[0]
+        return self.v1[0]
 
 
 class Var(SqlBlock):

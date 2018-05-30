@@ -1,4 +1,4 @@
-from .logic import Func
+from .logic import Func, SqlBlock
 
 
 def upper(string):
@@ -19,3 +19,22 @@ def left(string, n):
 
 def right(string, n):
     return Func('right', string, n)
+
+
+def _get_block(n):
+    if isinstance(n, SqlBlock):
+        return n
+    else:
+        return SqlBlock(n)
+
+
+def sqrt(n):
+    return _get_block(n).sqrt()
+
+
+def abs(n):
+    return _get_block(n).abs()
+
+
+def factorial(n):
+    return _get_block(n).factorial()
