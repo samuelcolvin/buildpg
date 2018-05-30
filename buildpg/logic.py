@@ -1,45 +1,13 @@
 from enum import Enum
-from .components import Component
+from .components import Component, Literal, VarLiteral
 
-# class Operator(IntEnum):
-#     eq = 1
-#     ne = 2
-#     lt = 3
-#     le = 4
-#     gt = 5
-#     ge = 6
-#     add = 7
-#     sub = 8
-#     mul = 9
-#     div = 10
-#     mod = 11
-#     pow = 12
-#     in_ = 13
-#     like = 14
-#     sqrt = 15       # single arg
-#     abs = 16        # single arg
-#     factorial = 17  # single arg
-#
-#
-# OP_LOOKUP = {
-#     Operator.eq: '=',
-#     Operator.ne: '!=',
-#     Operator.lt: '<',
-#     Operator.le: '<=',
-#     Operator.gt: '>',
-#     Operator.ge: '>=',
-#     Operator.add: '+',
-#     Operator.sub: '-',
-#     Operator.mul: '*',
-#     Operator.div: '/',
-#     Operator.mod: '%',
-#     Operator.pow: '^',
-#     Operator.in_: 'IN',
-#     Operator.like: 'LIKE',
-#     Operator.sqrt: '|/',
-#     Operator.abs: '@',
-#     Operator.factorial: '!!',  # use prefix operator for simplicity
-# }
+__all__ = (
+    'LogicError',
+    'SqlBlock',
+    'S',
+    'Var',
+    'V',
+)
 
 
 class LogicError(RuntimeError):
@@ -68,18 +36,32 @@ class Operator(str, Enum):
     factorial = '!!'  # single arg, use prefix operator for simplicity
 
 
-class Operation(Component):
-    def __init__(self, v1, op: Operator=None, v2=None):
+class SqlBlock(Component):
+    __slots__ = 'v1', 'op', 'v2', 'inverted'
+
+    def __init__(self, v1, *, op: Operator=None, v2=None, inverted=False):
         self.v1 = v1
         self.op = op
         self.v2 = v2
+        self.inverted = inverted
 
-    def fill(self, op: Operator, v2):
+    def fill(self, op: Operator, v2=None):
         if self.op:
-            raise LogicError(f'operation already filled ({self.v1}')
-        self.op = op
-        self.v2 = v2
-        return self
+            # op already completed
+            return SqlBlock(self, op=op, v2=v2)
+        else:
+            self.op = op
+            self.v2 = v2
+            return self
+
+    def __and__(self, other):
+        return self.fill(Operator.and_, other)
+
+    def __or__(self, other):
+        return self.fill(Operator.or_, other)
+
+    def __eq__(self, other):
+        return self.fill(Operator.eq, other)
 
     def __ne__(self, other):
         return self.fill(Operator.ne, other)
@@ -96,49 +78,49 @@ class Operation(Component):
     def __ge__(self, other):
         return self.fill(Operator.ge, other)
 
-    def __eq__(self, other):
-        return self.fill(Operator.eq, other)
+    def __add__(self, other):
+        return self.fill(Operator.add, other)
 
-    def __or__(self, other):
-        return Or(self, other)
+    def __sub__(self, other):
+        return self.fill(Operator.sub, other)
 
-    def __and__(self, other):
-        return And(self, other)
+    def __mul__(self, other):
+        return self.fill(Operator.mul, other)
 
-    def __invert__(self):
-        return And(self, inverted=True)
+    def __truediv__(self, other):
+        return self.fill(Operator.div, other)
 
-    def __repr__(self):
-        return f'<Op"{self.v1}" {self.op.value} "{self.v2}">'
+    def __mod__(self, other):
+        return self.fill(Operator.mod, other)
 
-
-class _AndOr(Component):
-    op = NotImplemented
-
-    def __init__(self, *phrases, inverted: bool=False):
-        self.phrases = phrases
-        self.inverted = inverted
+    def __pow__(self, other):
+        return self.fill(Operator.pow, other)
 
     def __invert__(self):
         self.inverted = not self.inverted
         return self
 
+    def render(self):
+        if self.inverted:
+            yield Literal('NOT (')
+        if isinstance(self.v1, Component):
+            yield Literal('(')
+            yield self.v1
+            yield Literal(')')
+        else:
+            yield self.v1
+        if self.op:
+            yield Literal(' ' + self.op.value + ' ')
+            if self.v2:
+                yield self.v2
+        if self.inverted:
+            yield Literal(')')
 
-class And(_AndOr):
-    op = Operator.and_
 
-    def __or__(self, other):
-        return Or(self, other)
-
-    def __and__(self, other):
-        self.phrases += other
+class Var(SqlBlock):
+    def __init__(self, v1, op: Operator=None, v2=None):
+        super().__init__(VarLiteral(v1), op=op, v2=v2)
 
 
-class Or(_AndOr):
-    op = Operator.or_
-
-    def __or__(self, other):
-        self.phrases += other
-
-    def __and__(self, other):
-        return And(self, other)
+S = SqlBlock
+V = Var
