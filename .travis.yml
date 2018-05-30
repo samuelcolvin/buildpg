@@ -1,0 +1,24 @@
+language: python
+
+cache: pip
+
+python:
+- '3.6'
+- 'nightly'  # currently 3.7
+
+matrix:
+  allow_failures:
+  - python: 'nightly'
+
+install:
+- make install
+- pip freeze
+
+script:
+- make lint
+- make test
+
+after_success:
+- ls -lha
+- bash <(curl -s https://codecov.io/bash)
+
