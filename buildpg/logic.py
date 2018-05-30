@@ -1,11 +1,13 @@
 from enum import Enum
-from .components import Component, Literal, VarLiteral
+from .components import Component, Literal, VarLiteral, check_word, yield_sep
 
 __all__ = (
     'LogicError',
     'SqlBlock',
-    'S',
+    'Func',
+    'Not',
     'Var',
+    'S',
     'V',
 )
 
@@ -29,21 +31,22 @@ class Operator(str, Enum):
     div = '/'
     mod = '%'
     pow = '^'
-    in_ = 'IN'
+    contains = '@>'
+    contained_by = '<@'
     like = 'LIKE'
+    cat = '||'
     sqrt = '|/'       # single arg TODO move to functions
     abs = '@'         # single arg
     factorial = '!!'  # single arg, use prefix operator for simplicity
 
 
 class SqlBlock(Component):
-    __slots__ = 'v1', 'op', 'v2', 'inverted'
+    __slots__ = 'v1', 'op', 'v2'
 
-    def __init__(self, v1, *, op: Operator=None, v2=None, inverted=False):
+    def __init__(self, v1, *, op: Operator=None, v2=None):
         self.v1 = v1
         self.op = op
         self.v2 = v2
-        self.inverted = inverted
 
     def fill(self, op: Operator, v2=None):
         if self.op:
@@ -96,14 +99,23 @@ class SqlBlock(Component):
     def __pow__(self, other):
         return self.fill(Operator.pow, other)
 
+    def contains(self, other):
+        return self.fill(Operator.contains, other)
+
+    def contained_by(self, other):
+        return self.fill(Operator.contained_by, other)
+
+    def like(self, other):
+        return self.fill(Operator.like, other)
+
+    def cat(self, other):
+        return self.fill(Operator.cat, other)
+
     def __invert__(self):
-        self.inverted = not self.inverted
-        return self
+        return Not(self)
 
     def render(self):
-        if self.inverted:
-            yield Literal('NOT (')
-        if isinstance(self.v1, Component):
+        if isinstance(self.v1, Component) and getattr(self.v1, 'op', None) != self.op:
             yield Literal('(')
             yield self.v1
             yield Literal(')')
@@ -113,12 +125,35 @@ class SqlBlock(Component):
             yield Literal(' ' + self.op.value + ' ')
             if self.v2:
                 yield self.v2
-        if self.inverted:
-            yield Literal(')')
+
+
+class Func(SqlBlock):
+    __slots__ = 'func', 'args'
+
+    def __init__(self, func, *args):
+        check_word(func)
+        self.func = func
+        self.args = args
+
+    def fill(self, op: Operator, v2=None):
+        return SqlBlock(self, op=op, v2=v2)
+
+    def render(self):
+        yield Literal(self.func + '(')
+        yield from yield_sep(self.args)
+        yield Literal(')')
+
+
+class Not(Func):
+    def __init__(self, v):
+        super().__init__('NOT', v)
+
+    def __invert__(self):
+        return self.args[0]
 
 
 class Var(SqlBlock):
-    def __init__(self, v1, op: Operator=None, v2=None):
+    def __init__(self, v1, *, op: Operator=None, v2=None):
         super().__init__(VarLiteral(v1), op=op, v2=v2)
 
 

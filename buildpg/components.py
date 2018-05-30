@@ -2,9 +2,10 @@ import re
 from typing import Generator, Any
 
 __all__ = (
+    'check_word',
     'BuildError',
     'UnsafeError',
-    'Param',
+    'yield_sep',
     'Literal',
     'VarLiteral',
     'Component',
@@ -14,7 +15,14 @@ __all__ = (
     'Values',
 )
 
-UNSAFE = re.compile('\W', flags=re.A)
+NOT_WORD = re.compile('\W', flags=re.A)
+
+
+def check_word(s):
+    if not isinstance(s, str):
+        raise TypeError('value is not a string')
+    if NOT_WORD.search(s):
+        raise UnsafeError(f'str contain unsafe (non word) characters: "{s}"')
 
 
 class BuildError(RuntimeError):
@@ -29,22 +37,23 @@ class UnsafeError(RuntimeError):
     pass
 
 
-class Param:
-    __slots__ = 'value',
-
-    def __init__(self, v):
-        self.value = v
-
-
 class Literal(str):
     pass
 
 
+def yield_sep(iter, sep=Literal(', ')):
+    mid = 0
+    for v in iter:
+        if mid:
+            yield sep
+        mid = 1
+        yield v
+
+
 class VarLiteral(Literal):
     def __init__(self, s: str):
+        check_word(s)
         str.__init__(s)
-        if UNSAFE.search(self):
-            raise UnsafeError(f'literal contain unsafe (non word) characters: "{s}"')
 
 
 class Component:
@@ -87,18 +96,9 @@ class Raw(RawDangerous):
 
     def __init__(self, *args):
         super().__init__(*args)
-        if any(isinstance(a, str) and UNSAFE.search(a) for a in args):
-            unsafe = [a for a in self.args if isinstance(a, str) and UNSAFE.search(a)]
+        if any(isinstance(a, str) and NOT_WORD.search(a) for a in args):
+            unsafe = [a for a in self.args if isinstance(a, str) and NOT_WORD.search(a)]
             raise UnsafeError(f'raw arguments contain unsafe (non word) characters: {unsafe}')
-
-
-def _yield_sep(iter, sep=Literal(', ')):
-    mid = 0
-    for v in iter:
-        if mid:
-            yield sep
-        mid = 1
-        yield v
 
 
 class Values(Component):
@@ -125,7 +125,7 @@ class Values(Component):
 
     def render(self):
         yield Literal('(')
-        yield from _yield_sep(self.values)
+        yield from yield_sep(self.values)
         yield Literal(')')
 
     def render_names(self):
@@ -153,18 +153,4 @@ class MultipleValues(Component):
             self.rows.append(r)
 
     def render(self):
-        yield from _yield_sep(self.rows)
-
-
-# class Blank(Component):
-#     """
-#     just substituted for $1, $2 etc., only used
-#     """
-#
-#
-# class Function(Component):
-#     pass
-#
-#
-# class upper(Function):
-#     pass
+        yield from yield_sep(self.rows)

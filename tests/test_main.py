@@ -55,8 +55,8 @@ TESTS = [
 @pytest.mark.parametrize(','.join(args), [[t[a] for a in args] for t in TESTS], ids=[t['template'] for t in TESTS])
 def test_render(template, ctx, expected_query, expected_params):
     query, params = render(template, **ctx)
-    assert query == expected_query
-    assert params == expected_params
+    assert expected_query == query
+    assert expected_params == params
 
 
 @pytest.mark.parametrize('component,s', [
@@ -64,4 +64,4 @@ def test_render(template, ctx, expected_query, expected_params):
     (MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<MultipleValues((3, 2, 1), (1, 2, 3))>'),
 ])
 def test_component_repr(component, s):
-    assert repr(component) == s
+    assert s == repr(component)
