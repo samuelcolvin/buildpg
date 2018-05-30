@@ -49,15 +49,15 @@ TESTS = [
     },
     {
         'template': 'complex: {{ var }}',
-        'var': (Var('foo') > 2) & ((S('x') / 7 > 3) | (Var('another') ** 4 == 42)),
-        'expected_query': 'complex: (foo > $1) AND (($2 / $3) > $4) OR (another ^ $5) = $6',
+        'var': (Var('foo') > 2) & ((SqlBlock('x') / 7 > 3) | (Var('another') ** 4 == 42)),
+        'expected_query': 'complex: foo > $1 AND ($2 / $3 > $4 OR another ^ $5 = $6)',
         'expected_params': [2, 'x', 7, 3, 4, 42],
     },
     {
         'template': 'complex AND OR: {{ var }}',
         # as above but using the AND and OR functions for clear usage
-        'var': funcs.AND(Var('foo') > 2, funcs.OR(S('x') / 7 > 3, Var('another') ** 4 == 42)),
-        'expected_query': 'complex AND OR: (foo > $1) AND (($2 / $3) > $4) OR (another ^ $5) = $6',
+        'var': funcs.AND(V('foo') > 2, funcs.OR(S('x') / 7 > 3, V('another') ** 4 == 42)),
+        'expected_query': 'complex AND OR: foo > $1 AND ($2 / $3 > $4 OR another ^ $5 = $6)',
         'expected_params': [2, 'x', 7, 3, 4, 42],
     },
     {
@@ -81,7 +81,7 @@ TESTS = [
     {
         'template': 'abs neg: {{ var }}',
         'var': funcs.abs(-S(4)),
-        'expected_query': 'abs neg: @ -$1',
+        'expected_query': 'abs neg: @ - $1',
         'expected_params': [4],
     },
     {
@@ -124,6 +124,8 @@ def test_render(template, var, expected_query, expected_params):
     (funcs.lower('a'), 'lower($1)'),
     (funcs.length('a'), 'length($1)'),
     (funcs.AND('a', 'b', 'c'), '$1 AND $2 AND $3'),
+    (funcs.AND('a', 'b', V('c') | V('d')), '$1 AND $2 AND (c OR d)'),
+    (funcs.OR('a', 'b', V('c') & V('d')), '$1 OR $2 OR c AND d'),
 ])
 def test_simple_blocks(block, expected_query):
     query, _ = render('{{ v }}', v=block)

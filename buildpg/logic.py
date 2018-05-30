@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, unique
 from .components import Component, Literal, VarLiteral, check_word, yield_sep
 
 __all__ = (
@@ -16,6 +16,7 @@ class LogicError(RuntimeError):
     pass
 
 
+@unique
 class Operator(str, Enum):
     and_ = 'AND'
     or_ = 'OR'
@@ -40,20 +41,41 @@ class Operator(str, Enum):
     factorial = '!'
 
 
+@unique
 class LeftOperator(str, Enum):
-    neg = '-'
+    neg = '- '
     sqrt = '|/ '
     abs = '@ '
 
 
-# TODO complete and use for bracket logic
 PRECEDENCE = {
-    Operator.pow,
-    Operator.mod,
-    Operator.mul,
-    Operator.div,
-    Operator.add,
-    Operator.sub,
+    LeftOperator.neg: 120,
+    LeftOperator.sqrt: 120,
+    LeftOperator.abs: 120,
+
+    Operator.pow: 100,
+    Operator.mod: 90,
+    Operator.mul: 80,
+    Operator.div: 70,
+    Operator.add: 60,
+    Operator.sub: 50,
+
+    Operator.contains: 35,
+    Operator.contained_by: 35,
+    Operator.like: 35,
+    Operator.cat: 35,
+    Operator.in_: 35,
+    Operator.from_: 35,
+
+    Operator.eq: 40,
+    Operator.ne: 40,
+    Operator.lt: 40,
+    Operator.le: 40,
+    Operator.gt: 40,
+    Operator.ge: 40,
+
+    Operator.and_: 30,
+    Operator.or_: 20,
 }
 
 
@@ -149,17 +171,27 @@ class SqlBlock(Component):
     def from_(self, other):
         return self.fill(Operator.from_, other)
 
-    def render(self):
-        if self.op and isinstance(self.v1, SqlBlock) and getattr(self.v1, 'op', None) != self.op:
+    def _should_bracket(self, v):
+        if self.op:
+            sub_op = getattr(v, 'op', None)
+            if sub_op and PRECEDENCE.get(self.op, 0) > PRECEDENCE.get(sub_op, -1):
+                return True
+
+    def _bracket(self, v):
+        if self._should_bracket(v):
             yield Literal('(')
-            yield self.v1
+            yield v
             yield Literal(')')
         else:
-            yield self.v1
+            yield v
+
+    def render(self):
+        yield from self._bracket(self.v1)
         if self.op:
             yield Literal(' ' + self.op.value + ' ')
             if self.v2:
-                yield self.v2
+                yield from self._bracket(self.v2)
+                # yield self.v2
 
 
 class Func(SqlBlock):
@@ -183,15 +215,8 @@ class LeftOp(Func):
     allow_unsafe = True
 
     def render(self):
-        arg = self.v1[0]
-        arg_op = getattr(arg, 'op', None)
-        if arg_op and not isinstance(arg_op, LeftOperator):
-            yield Literal(self.op.value + '(')
-            yield arg
-            yield Literal(')')
-        else:
-            yield Literal(self.op.value)
-            yield arg
+        yield Literal(self.op.value)
+        yield from self._bracket(self.v1[0])
 
 
 class Not(Func):
