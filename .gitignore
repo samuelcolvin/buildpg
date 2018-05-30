@@ -1,0 +1,16 @@
+.idea/
+env/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.cache/
+.mypy_cache/
+test.py
+.coverage
+htmlcov/
+benchmarks/*.json
+docs/_build/
+docs/.TMP_HISTORY.rst
+.pytest_cache/
+.vscode/
