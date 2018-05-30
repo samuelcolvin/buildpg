@@ -1,6 +1,27 @@
 from .logic import Func, SqlBlock
 
 
+def _get_block(n):
+    if isinstance(n, SqlBlock):
+        return n
+    else:
+        return SqlBlock(n)
+
+
+def AND(arg, *args):
+    v = _get_block(arg)
+    for a in args:
+        v &= a
+    return v
+
+
+def OR(arg, *args):
+    v = _get_block(arg)
+    for a in args:
+        v |= a
+    return v
+
+
 def upper(string):
     return Func('upper', string)
 
@@ -19,13 +40,6 @@ def left(string, n):
 
 def right(string, n):
     return Func('right', string, n)
-
-
-def _get_block(n):
-    if isinstance(n, SqlBlock):
-        return n
-    else:
-        return SqlBlock(n)
 
 
 def sqrt(n):

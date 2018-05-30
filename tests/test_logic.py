@@ -54,6 +54,13 @@ TESTS = [
         'expected_params': [2, 'x', 7, 3, 4, 42],
     },
     {
+        'template': 'complex AND OR: {{ var }}',
+        # as above but using the AND and OR functions for clear usage
+        'var': funcs.AND(Var('foo') > 2, funcs.OR(S('x') / 7 > 3, Var('another') ** 4 == 42)),
+        'expected_query': 'complex AND OR: (foo > $1) AND (($2 / $3) > $4) OR (another ^ $5) = $6',
+        'expected_params': [2, 'x', 7, 3, 4, 42],
+    },
+    {
         'template': 'inv chain: {{ var }}',
         'var': ~(V('x') == 2) | V('y'),
         'expected_query': 'inv chain: (NOT(x = $1)) OR y',
@@ -116,6 +123,7 @@ def test_render(template, var, expected_query, expected_params):
     (funcs.lower('a'), 'lower($1)'),
     (funcs.lower('a'), 'lower($1)'),
     (funcs.length('a'), 'length($1)'),
+    (funcs.AND('a', 'b', 'c'), '$1 AND $2 AND $3'),
 ])
 def test_simple_blocks(block, expected_query):
     query, _ = render('{{ v }}', v=block)

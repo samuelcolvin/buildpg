@@ -46,6 +46,17 @@ class LeftOperator(str, Enum):
     abs = '@ '
 
 
+# TODO complete and use for bracket logic
+PRECEDENCE = {
+    Operator.pow,
+    Operator.mod,
+    Operator.mul,
+    Operator.div,
+    Operator.add,
+    Operator.sub,
+}
+
+
 class SqlBlock(Component):
     __slots__ = 'v1', 'op', 'v2'
 
