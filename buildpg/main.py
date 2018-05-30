@@ -7,7 +7,7 @@ __all__ = (
 )
 
 
-def render(sql, __open__='{{ ?', __close__=' ?}}', **ctx):
+def render(query_template, __open__='{{ ?', __close__=' ?}}', **ctx):
     params = []
 
     def add_param(p):
@@ -30,17 +30,30 @@ def render(sql, __open__='{{ ?', __close__=' ?}}', **ctx):
         elif isinstance(v, Component):
             render = v.render
 
-        if render:
+        try:
             r = ''
-            for chunk in render(var_name):
+
+            def add_chunk(chunk):
+                nonlocal r
                 if isinstance(chunk, Param):
                     r += add_param(chunk.value)
+                elif isinstance(chunk, Component):
+                    for chunk_ in chunk.render(var_name):
+                        add_chunk(chunk_)
                 else:
                     r += chunk
-        else:
-            r = add_param(v)
-        return r
 
-    var_regex = __open__ + r'?([\w_]+)(?:\.([\w_]+))?' + __close__
-    query = re.sub(var_regex, repl, sql)
+            if render:
+                for chunk in render(var_name):
+                    add_chunk(chunk)
+            else:
+                r = add_param(v)
+            return r
+        except BuildError:
+            raise
+        except Exception as exc:
+            raise BuildError(f'error building content for "{var_name}"') from exc
+
+    var_regex = __open__ + r'?(\w+)(?:\.(\w+))?' + __close__
+    query = re.sub(var_regex, repl, query_template, flags=re.A)
     return query, params

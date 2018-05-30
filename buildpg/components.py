@@ -1,13 +1,17 @@
+import re
 from typing import Generator, Union
 
 __all__ = (
     'Param',
     'Component',
     'BuildError',
+    'RawDangerous',
     'Raw',
     'MultipleValues',
     'Values',
 )
+
+UNSAFE = re.compile('\W', flags=re.A)
 
 
 class Param:
@@ -26,11 +30,11 @@ class BuildError(RuntimeError):
     pass
 
 
-class Raw(Component):
-    """
-    used for one or more raw values, eg. fields to select
-    rendered with
-    """
+class UnsafeError(RuntimeError):
+    pass
+
+
+class RawDangerous(Component):
     __slots__ = 'args',
 
     def __init__(self, *args):
@@ -38,6 +42,16 @@ class Raw(Component):
 
     def render(self, name):
         yield ', '.join(str(a) for a in self.args)
+
+
+class Raw(RawDangerous):
+    __slots__ = 'args',
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        if any(isinstance(a, str) and UNSAFE.search(a) for a in args):
+            unsafe = [a for a in self.args if isinstance(a, str) and UNSAFE.search(a)]
+            raise UnsafeError(f'raw arguments contain unsafe (non word) characters: {unsafe}')
 
 
 def _yield_sep(iter, sep=', ', yield_from=False):
@@ -105,38 +119,6 @@ class MultipleValues(Component):
 
     def render(self, name):
         yield from _yield_sep((row.render(name) for row in self.rows), yield_from=True)
-
-
-class Logic(Component):
-    """
-    used for building logic, should implement lt, gl, eq etc,
-
-    used as in
-    foo = l('hello') > 4
-
-    will also required and_(*<fields>) and or_(*<fields>)
-    """
-
-    def __gt__(self, other):
-        # debug(self, other)
-        return Logic(other)
-
-    def __lt__(self, other):
-        # debug(self, other)
-        return Logic(other)
-
-    def __and__(self, other):
-        # debug(self, other)
-        return Logic(other)
-
-    def __or__(self, other):
-        return Logic(other)
-
-    def __invert__(self):
-        return Logic('bool')
-
-    def __repr__(self):
-        return f'<Logic({", ".join(repr(v) for v in self.args)})>'
 
 
 class Blank(Component):
