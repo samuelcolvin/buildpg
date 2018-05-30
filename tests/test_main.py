@@ -1,6 +1,6 @@
 import pytest
-from buildpg import MultipleValues, Raw, RawDangerous, Values, render
 
+from buildpg import MultipleValues, Raw, RawDangerous, Values, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [

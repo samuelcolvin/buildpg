@@ -1,7 +1,7 @@
 import re
 from functools import partial
 
-from .components import BuildError, Component, Literal, ComponentError
+from .components import BuildError, Component, ComponentError, Literal
 
 __all__ = (
     'Renderer',
@@ -24,7 +24,7 @@ class Renderer:
         return self.var_regex.sub(repl, query_template), params
 
     @classmethod
-    def replace(cls, m, *, ctx, add_param):
+    def replace(cls, m, *, ctx, add_param):  # noqa: C901 (ignore complexity)
         var_name, extra_name = m.groups()
         try:
             v = ctx[var_name]

@@ -1,5 +1,4 @@
 import re
-from typing import Generator, Any
 
 __all__ = (
     'check_word',
@@ -57,7 +56,7 @@ class VarLiteral(Literal):
 
 
 class Component:
-    def render(self) -> Generator[Any, None, None]:
+    def render(self):
         raise NotImplementedError()
 
     def __str__(self):

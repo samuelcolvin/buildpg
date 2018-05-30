@@ -1,4 +1,5 @@
 from enum import Enum, unique
+
 from .components import Component, Literal, VarLiteral, check_word, yield_sep
 
 __all__ = (
@@ -191,7 +192,6 @@ class SqlBlock(Component):
             yield Literal(' ' + self.op.value + ' ')
             if self.v2:
                 yield from self._bracket(self.v2)
-                # yield self.v2
 
 
 class Func(SqlBlock):
