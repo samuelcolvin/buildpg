@@ -80,7 +80,7 @@ TESTS = [
     {
         'template': 'abs neg: {{ var }}',
         'var': lambda: funcs.abs(-S(4)),
-        'expected_query': 'abs neg: @ - $1',
+        'expected_query': 'abs neg: @ -$1',
         'expected_params': [4],
     },
     {
@@ -117,7 +117,7 @@ def test_render(template, var, expected_query, expected_params):
     (lambda: V('x').cat('y'), 'x || $1'),
     (lambda: funcs.sqrt(4), '|/ $1'),
     (lambda: funcs.abs(4), '@ $1'),
-    (lambda: funcs.factorial(4), '$1 ! '),
+    (lambda: funcs.factorial(4), '$1!'),
     (lambda: funcs.upper('a'), 'upper($1)'),
     (lambda: funcs.lower('a'), 'lower($1)'),
     (lambda: funcs.lower('a'), 'lower($1)'),

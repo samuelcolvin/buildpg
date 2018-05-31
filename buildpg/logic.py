@@ -19,37 +19,40 @@ class LogicError(RuntimeError):
 
 @unique
 class Operator(str, Enum):
-    and_ = 'AND'
-    or_ = 'OR'
-    eq = '='
-    ne = '!='
-    lt = '<'
-    le = '<='
-    gt = '>'
-    ge = '>='
-    add = '+'
-    sub = '-'
-    mul = '*'
-    div = '/'
-    mod = '%'
-    pow = '^'
-    contains = '@>'
-    contained_by = '<@'
-    like = 'LIKE'
-    cat = '||'
-    in_ = 'IN'
-    from_ = 'FROM'
+    and_ = ' AND '
+    or_ = ' OR '
+    eq = ' = '
+    ne = ' != '
+    lt = ' < '
+    le = ' <= '
+    gt = ' > '
+    ge = ' >= '
+    add = ' + '
+    sub = ' - '
+    mul = ' * '
+    div = ' / '
+    mod = ' % '
+    pow = ' ^ '
+    contains = ' @> '
+    contained_by = ' <@ '
+    like = ' LIKE '
+    cat = ' || '
+    in_ = ' IN '
+    from_ = ' FROM '
     factorial = '!'
+    cast = '::'
 
 
 @unique
 class LeftOperator(str, Enum):
-    neg = '- '
+    neg = '-'
     sqrt = '|/ '
     abs = '@ '
 
 
 PRECEDENCE = {
+    Operator.cast: 130,
+
     LeftOperator.neg: 120,
     LeftOperator.sqrt: 120,
     LeftOperator.abs: 120,
@@ -172,6 +175,9 @@ class SqlBlock(Component):
     def from_(self, other):
         return self.fill(Operator.from_, other)
 
+    def cast(self, cast_type):
+        return self.fill(Operator.cast, V(cast_type))
+
     def _should_bracket(self, v):
         if self.op:
             sub_op = getattr(v, 'op', None)
@@ -189,7 +195,7 @@ class SqlBlock(Component):
     def render(self):
         yield from self._bracket(self.v1)
         if self.op:
-            yield Literal(' ' + self.op.value + ' ')
+            yield Literal(self.op.value)
             if self.v2:
                 yield from self._bracket(self.v2)
 

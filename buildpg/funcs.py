@@ -1,7 +1,7 @@
 from .logic import Func, SqlBlock
 
 
-def _get_block(n):
+def _as_block(n):
     if isinstance(n, SqlBlock):
         return n
     else:
@@ -9,17 +9,21 @@ def _get_block(n):
 
 
 def AND(arg, *args):
-    v = _get_block(arg)
+    v = _as_block(arg)
     for a in args:
         v &= a
     return v
 
 
 def OR(arg, *args):
-    v = _get_block(arg)
+    v = _as_block(arg)
     for a in args:
         v |= a
     return v
+
+
+def cast(v, cast_type):
+    return _as_block(v).cast(cast_type)
 
 
 def upper(string):
@@ -43,12 +47,12 @@ def right(string, n):
 
 
 def sqrt(n):
-    return _get_block(n).sqrt()
+    return _as_block(n).sqrt()
 
 
 def abs(n):
-    return _get_block(n).abs()
+    return _as_block(n).abs()
 
 
 def factorial(n):
-    return _get_block(n).factorial()
+    return _as_block(n).factorial()

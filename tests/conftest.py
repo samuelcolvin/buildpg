@@ -1,7 +1,8 @@
 import asyncio
 
-import asyncpg
 import pytest
+
+from buildpg import asyncpg
 
 DB_NAME = 'buildpg_test'
 
@@ -62,7 +63,7 @@ def db():
 
 @pytest.yield_fixture
 async def conn(loop, db):
-    conn = await asyncpg.connect(f'postgresql://postgres@localhost/{DB_NAME}', loop=loop)
+    conn = await asyncpg.connect_b(f'postgresql://postgres@localhost/{DB_NAME}', loop=loop)
     tr = conn.transaction()
     await tr.start()
 
