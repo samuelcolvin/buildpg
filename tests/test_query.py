@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from buildpg import S, Select, V, funcs, render
+from buildpg import MultipleValues, S, Select, V, Values, funcs, render
 
 
 async def test_manual_select(conn):
@@ -40,3 +40,25 @@ async def test_fetchrow(conn):
     assert b == 26
     assert c == 'ab'
     assert d == 987654
+
+
+async def test_multiple_values_execute(conn):
+    co_id = await conn.fetchval('SELECT id FROM companies')
+    v = MultipleValues(
+        Values(company=co_id, first_name='anne', last_name=None, value=3, created=datetime(2032, 1, 1)),
+        Values(company=co_id, first_name='ben', last_name='better', value=5, created=datetime(2032, 1, 2)),
+        Values(company=co_id, first_name='charlie', last_name='cat', value=5, created=V('DEFAULT')),
+    )
+    await conn.execute_b('INSERT INTO users ({{ values.names }}) VALUES {{values}}', values=v)
+    assert 6 == await conn.fetchval('SELECT COUNT(*) FROM users')
+
+
+async def test_values_executemany(conn):
+    co_id = await conn.fetchval('SELECT id FROM companies')
+    v = [
+        Values(company=co_id, first_name='anne', last_name=None, value=3, created=datetime(2032, 1, 1)),
+        Values(company=co_id, first_name='ben', last_name='better', value=5, created=datetime(2032, 1, 2)),
+        Values(company=co_id, first_name='charlie', last_name='cat', value=5, created=datetime(2032, 1, 3)),
+    ]
+    await conn.executemany_b('INSERT INTO users ({{ values.names }}) VALUES {{values}}', v)
+    assert 6 == await conn.fetchval('SELECT COUNT(*) FROM users')

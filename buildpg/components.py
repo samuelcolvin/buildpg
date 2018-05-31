@@ -10,11 +10,12 @@ __all__ = (
     'Component',
     'SelectDangerous',
     'Select',
-    'MultipleValues',
     'Values',
+    'SelectAs',
+    'MultipleValues',
 )
 
-NOT_WORD = re.compile('\W', flags=re.A)
+NOT_WORD = re.compile('[^\w.]', flags=re.A)
 
 
 def check_word(s):
@@ -104,12 +105,6 @@ class Select(SelectDangerous):
 
 
 class Values(Component):
-    """
-    can be rendered with {{ v }}
-    names can be rendered with {{ v.names }}
-
-    For multiple rows use Values(Values(...), Values(...)) or append_row
-    """
     __slots__ = 'values', 'names'
 
     def __init__(self, *args, **kwargs):
@@ -135,6 +130,18 @@ class Values(Component):
         if not self.names:
             raise ComponentError(f'"names" are not available for nameless values')
         yield Literal(', '.join(self.names))
+
+
+class SelectAs(Values):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        check_word_many(self.values)
+
+    def render(self):
+        yield Literal(', '.join(f'{v} AS {n}' for v, n in zip(self.values, self.names)))
+
+    def render_values(self):
+        yield Literal(', '.join(self.values))
 
 
 class MultipleValues(Component):

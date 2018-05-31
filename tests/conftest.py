@@ -23,7 +23,7 @@ CREATE TABLE users (
   first_name VARCHAR(255),
   last_name VARCHAR(255),
   value INT,
-  created TIMESTAMP NOT NULL
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO companies (name, description) VALUES

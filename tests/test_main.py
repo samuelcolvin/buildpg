@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import MultipleValues, Select, SelectDangerous, Values, render
+from buildpg import MultipleValues, Select, SelectAs, SelectDangerous, Values, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
@@ -47,6 +47,12 @@ TESTS = [
         'template': 'raw dangerous: {{the_raw_values}}',
         'ctx': lambda: dict(the_raw_values=SelectDangerous('x', '"y"', 4)),
         'expected_query': 'raw dangerous: x, "y", 4',
+        'expected_params': [],
+    },
+    {
+        'template': 'select as: {{ select_as }}',
+        'ctx': lambda: dict(select_as=SelectAs(foo='foo_named', bar='bar_named', cat='dog')),
+        'expected_query': 'select as: foo_named AS foo, bar_named AS bar, dog AS cat',
         'expected_params': [],
     },
 ]

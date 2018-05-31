@@ -39,7 +39,7 @@ class Renderer:
                 render_gen = v.render
 
             if render_gen:
-                return ''.join(cls.add_chunk(render_gen, add_param))
+                return ''.join(cls.add_chunk(render_gen(), add_param))
             else:
                 return add_param(v)
         except ComponentError as exc:
@@ -50,14 +50,25 @@ class Renderer:
             raise BuildError(f'"{var_name}": error building content') from exc
 
     @classmethod
-    def add_chunk(cls, render_gen, add_param):
-        for chunk in render_gen():
+    def add_chunk(cls, gen, add_param):
+        for chunk in gen:
             if isinstance(chunk, Literal):
                 yield chunk
             elif isinstance(chunk, Component):
-                yield from cls.add_chunk(chunk.render, add_param)
+                yield from cls.add_chunk(chunk.render(), add_param)
             else:
                 yield add_param(chunk)
+
+    def get_params(self, component: Component):
+        return list(self._get_params(component.render()))
+
+    @classmethod
+    def _get_params(cls, gen):
+        for chunk in gen:
+            if isinstance(chunk, Component):
+                yield from cls._get_params(chunk.render())
+            elif not isinstance(chunk, Literal):
+                yield chunk
 
 
 render = Renderer()

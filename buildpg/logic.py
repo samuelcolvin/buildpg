@@ -41,6 +41,7 @@ class Operator(str, Enum):
     from_ = ' FROM '
     factorial = '!'
     cast = '::'
+    comma = ', '
 
 
 @unique
@@ -80,6 +81,7 @@ PRECEDENCE = {
 
     Operator.and_: 30,
     Operator.or_: 20,
+    Operator.comma: 10,
 }
 
 
@@ -177,6 +179,9 @@ class SqlBlock(Component):
 
     def cast(self, cast_type):
         return self.fill(Operator.cast, V(cast_type))
+
+    def comma(self, other):
+        return self.fill(Operator.comma, other)
 
     def _should_bracket(self, v):
         if self.op:

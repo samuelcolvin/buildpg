@@ -8,15 +8,14 @@ class BuildPgConnection(Connection):  # noqa
         query, args = render(query_template, **kwargs)
         return await self.execute(query, *args, timeout=__timeout)
 
-    async def executemany_b(self, query_template, __timeout: float=None, **kwargs):
-        query, args = render(query_template, **kwargs)
-        return await self.executemany(query, *args, timeout=__timeout)
+    async def executemany_b(self, query_template, args, timeout: float=None):
+        query, _ = render(query_template, values=args[0])
+        args_ = [render.get_params(a) for a in args]
+        return await self.executemany(query, args_, timeout=timeout)
 
     async def cursor_b(self, query_template, __timeout: float = None, __prefetch=None, **kwargs):
         query, args = render(query_template, **kwargs)
         return await self.cursor(query, *args, timeout=__timeout, prefetch=__prefetch)
-
-    # TODO prepare
 
     async def fetch_b(self, query_template, __timeout: float=None, **kwargs):
         query, args = render(query_template, **kwargs)

@@ -22,6 +22,13 @@ def OR(arg, *args):
     return v
 
 
+def Vars(arg, *args):
+    v = _as_block(arg)
+    for a in args:
+        v = v.comma(a)
+    return v
+
+
 def cast(v, cast_type):
     return _as_block(v).cast(cast_type)
 

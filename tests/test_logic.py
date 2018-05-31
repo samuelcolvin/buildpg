@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import S, SqlBlock, V, Var, funcs, render
+from buildpg import Func, S, SqlBlock, V, Var, funcs, render
 
 args = 'template', 'var', 'expected_query', 'expected_params'
 TESTS = [
@@ -115,6 +115,7 @@ def test_render(template, var, expected_query, expected_params):
     (lambda: V('x').contained_by(V('y')), 'x <@ y'),
     (lambda: V('x').like('y'), 'x LIKE $1'),
     (lambda: V('x').cat('y'), 'x || $1'),
+    (lambda: V('x').comma(V('y')), 'x, y'),
     (lambda: funcs.sqrt(4), '|/ $1'),
     (lambda: funcs.abs(4), '@ $1'),
     (lambda: funcs.factorial(4), '$1!'),
@@ -125,6 +126,10 @@ def test_render(template, var, expected_query, expected_params):
     (lambda: funcs.AND('a', 'b', 'c'), '$1 AND $2 AND $3'),
     (lambda: funcs.AND('a', 'b', V('c') | V('d')), '$1 AND $2 AND (c OR d)'),
     (lambda: funcs.OR('a', 'b', V('c') & V('d')), '$1 OR $2 OR c AND d'),
+    (lambda: funcs.Vars('a', 'b', V('c') | V('d')), '$1, $2, c OR d'),
+    (lambda: funcs.Vars(V('first_name'), 123), 'first_name, $1'),
+    (lambda: Func('foobar', V('x'), V('y')), 'foobar(x, y)'),
+    (lambda: Func('foobar', funcs.Vars('x', 'y')), 'foobar($1, $2)'),
 ])
 def test_simple_blocks(block, expected_query):
     query, _ = render('{{ v }}', v=block())
