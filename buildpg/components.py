@@ -8,8 +8,8 @@ __all__ = (
     'Literal',
     'VarLiteral',
     'Component',
-    'RawDangerous',
-    'Raw',
+    'SelectDangerous',
+    'Select',
     'MultipleValues',
     'Values',
 )
@@ -85,7 +85,7 @@ class Component:
         return f'<{self.__class__.__name__}({self})>'
 
 
-class RawDangerous(Component):
+class SelectDangerous(Component):
     __slots__ = 'args',
 
     def __init__(self, *args):
@@ -95,7 +95,7 @@ class RawDangerous(Component):
         yield Literal(', '.join(str(a) for a in self.args))
 
 
-class Raw(RawDangerous):
+class Select(SelectDangerous):
     __slots__ = 'args',
 
     def __init__(self, *args):

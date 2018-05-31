@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import MultipleValues, Raw, RawDangerous, Values, render
+from buildpg import MultipleValues, Select, SelectDangerous, Values, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
@@ -39,13 +39,13 @@ TESTS = [
     },
     {
         'template': 'raw: {{the_raw_values}}',
-        'ctx': lambda: dict(the_raw_values=Raw('x', 'y', '4')),
+        'ctx': lambda: dict(the_raw_values=Select('x', 'y', '4')),
         'expected_query': 'raw: x, y, 4',
         'expected_params': [],
     },
     {
         'template': 'raw dangerous: {{the_raw_values}}',
-        'ctx': lambda: dict(the_raw_values=RawDangerous('x', '"y"', 4)),
+        'ctx': lambda: dict(the_raw_values=SelectDangerous('x', '"y"', 4)),
         'expected_query': 'raw dangerous: x, "y", 4',
         'expected_params': [],
     },
@@ -61,7 +61,7 @@ def test_render(template, ctx, expected_query, expected_params):
 
 
 @pytest.mark.parametrize('component,s', [
-    (lambda: Raw('a', 'b', 'c'), '<Raw(a, b, c)>'),
+    (lambda: Select('a', 'b', 'c'), '<Select(a, b, c)>'),
     (lambda: MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<MultipleValues((3, 2, 1), (1, 2, 3))>'),
 ])
 def test_component_repr(component, s):
