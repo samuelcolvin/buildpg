@@ -24,6 +24,12 @@ def check_word(s):
         raise UnsafeError(f'str contain unsafe (non word) characters: "{s}"')
 
 
+def check_word_many(args):
+    if any(not isinstance(a, str) or NOT_WORD.search(a) for a in args):
+        unsafe = [a for a in args if not isinstance(a, str) or NOT_WORD.search(a)]
+        raise UnsafeError(f'raw arguments contain unsafe (non word) characters: {unsafe}')
+
+
 class BuildError(RuntimeError):
     pass
 
@@ -40,12 +46,11 @@ class Literal(str):
     pass
 
 
-def yield_sep(iter, sep=Literal(', ')):
-    mid = 0
-    for v in iter:
-        if mid:
-            yield sep
-        mid = 1
+def yield_sep(iterable, sep=Literal(', ')):
+    iter_ = iter(iterable)
+    yield next(iter_)
+    for v in iter_:
+        yield sep
         yield v
 
 
@@ -94,10 +99,8 @@ class Raw(RawDangerous):
     __slots__ = 'args',
 
     def __init__(self, *args):
+        check_word_many(args)
         super().__init__(*args)
-        if any(isinstance(a, str) and NOT_WORD.search(a) for a in args):
-            unsafe = [a for a in self.args if isinstance(a, str) and NOT_WORD.search(a)]
-            raise UnsafeError(f'raw arguments contain unsafe (non word) characters: {unsafe}')
 
 
 class Values(Component):
@@ -121,6 +124,7 @@ class Values(Component):
             self.values = args
         else:
             self.names, self.values = zip(*kwargs.items())
+            check_word_many(self.names)
 
     def render(self):
         yield Literal('(')

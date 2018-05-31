@@ -2,7 +2,7 @@ from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from setuptools import setup
 
-description = 'Query building for the postgresql extending binary format.'
+description = 'Query building for the postgresql prepared statements and asyncpg.'
 THIS_DIR = Path(__file__).resolve().parent
 try:
     long_description = THIS_DIR.joinpath('README.rst').read_text()
