@@ -33,7 +33,7 @@ async def test_manual_logic(conn):
     assert ['Fred', 'Joe'] == [r[0] for r in v]
 
 
-async def test_fetchrow(conn):
+async def test_logic(conn):
     a, b, c, d = await conn.fetchrow_b('SELECT {{a}}, {{b}}, {{c}}, {{d}}::int',
                                        a=funcs.cast(5, 'int') * 5, b=funcs.sqrt(676), c=S('a').cat('b'), d=987654)
     assert a == 25
@@ -62,3 +62,18 @@ async def test_values_executemany(conn):
     ]
     await conn.executemany_b('INSERT INTO users ({{ values.names }}) VALUES {{values}}', v)
     assert 6 == await conn.fetchval('SELECT COUNT(*) FROM users')
+
+
+async def test_position(conn):
+    a = await conn.fetchval_b('SELECT {{a}}', a=funcs.position('xx', 'testing xx more'))
+    assert a == 9
+
+
+async def test_substring(conn):
+    a = await conn.fetchval_b('SELECT {{a}}', a=funcs.substring('Samuel', '...$'))
+    assert a == 'uel'
+
+
+async def test_substring_for(conn):
+    a = await conn.fetchval_b('SELECT {{a}}', a=funcs.substring('Samuel', funcs.cast(2, 'int'), funcs.cast(3, 'int')))
+    assert a == 'amu'

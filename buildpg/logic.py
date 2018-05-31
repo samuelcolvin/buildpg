@@ -37,8 +37,9 @@ class Operator(str, Enum):
     contained_by = ' <@ '
     like = ' LIKE '
     cat = ' || '
-    in_ = ' IN '
-    from_ = ' FROM '
+    in_ = ' in '
+    from_ = ' from '
+    for_ = ' for '
     factorial = '!'
     cast = '::'
     comma = ', '
@@ -93,7 +94,7 @@ class SqlBlock(Component):
         self.op = op
         self.v2 = v2
 
-    def fill(self, op: Operator, v2=None):
+    def operate(self, op: Operator, v2=None):
         if self.op:
             # op already completed
             return SqlBlock(self, op=op, v2=v2)
@@ -103,46 +104,46 @@ class SqlBlock(Component):
             return self
 
     def __and__(self, other):
-        return self.fill(Operator.and_, other)
+        return self.operate(Operator.and_, other)
 
     def __or__(self, other):
-        return self.fill(Operator.or_, other)
+        return self.operate(Operator.or_, other)
 
     def __eq__(self, other):
-        return self.fill(Operator.eq, other)
+        return self.operate(Operator.eq, other)
 
     def __ne__(self, other):
-        return self.fill(Operator.ne, other)
+        return self.operate(Operator.ne, other)
 
     def __lt__(self, other):
-        return self.fill(Operator.lt, other)
+        return self.operate(Operator.lt, other)
 
     def __le__(self, other):
-        return self.fill(Operator.le, other)
+        return self.operate(Operator.le, other)
 
     def __gt__(self, other):
-        return self.fill(Operator.gt, other)
+        return self.operate(Operator.gt, other)
 
     def __ge__(self, other):
-        return self.fill(Operator.ge, other)
+        return self.operate(Operator.ge, other)
 
     def __add__(self, other):
-        return self.fill(Operator.add, other)
+        return self.operate(Operator.add, other)
 
     def __sub__(self, other):
-        return self.fill(Operator.sub, other)
+        return self.operate(Operator.sub, other)
 
     def __mul__(self, other):
-        return self.fill(Operator.mul, other)
+        return self.operate(Operator.mul, other)
 
     def __truediv__(self, other):
-        return self.fill(Operator.div, other)
+        return self.operate(Operator.div, other)
 
     def __mod__(self, other):
-        return self.fill(Operator.mod, other)
+        return self.operate(Operator.mod, other)
 
     def __pow__(self, other):
-        return self.fill(Operator.pow, other)
+        return self.operate(Operator.pow, other)
 
     def __invert__(self):
         return Not(self)
@@ -157,31 +158,34 @@ class SqlBlock(Component):
         return LeftOp(LeftOperator.abs, self)
 
     def factorial(self):
-        return self.fill(Operator.factorial)
+        return self.operate(Operator.factorial)
 
     def contains(self, other):
-        return self.fill(Operator.contains, other)
+        return self.operate(Operator.contains, other)
 
     def contained_by(self, other):
-        return self.fill(Operator.contained_by, other)
+        return self.operate(Operator.contained_by, other)
 
     def like(self, other):
-        return self.fill(Operator.like, other)
+        return self.operate(Operator.like, other)
 
     def cat(self, other):
-        return self.fill(Operator.cat, other)
+        return self.operate(Operator.cat, other)
 
     def in_(self, other):
-        return self.fill(Operator.in_, other)
+        return self.operate(Operator.in_, other)
 
     def from_(self, other):
-        return self.fill(Operator.from_, other)
+        return self.operate(Operator.from_, other)
+
+    def for_(self, other):
+        return self.operate(Operator.for_, other)
 
     def cast(self, cast_type):
-        return self.fill(Operator.cast, V(cast_type))
+        return self.operate(Operator.cast, V(cast_type))
 
     def comma(self, other):
-        return self.fill(Operator.comma, other)
+        return self.operate(Operator.comma, other)
 
     def _should_bracket(self, v):
         if self.op:
@@ -213,7 +217,7 @@ class Func(SqlBlock):
             check_word(func)
         super().__init__(args, op=func)
 
-    def fill(self, op: Operator, v2=None):
+    def operate(self, op: Operator, v2=None):
         return SqlBlock(self, op=op, v2=v2)
 
     def render(self):

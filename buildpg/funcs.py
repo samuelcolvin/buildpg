@@ -63,3 +63,14 @@ def abs(n):
 
 def factorial(n):
     return _as_block(n).factorial()
+
+
+def position(substring, string):
+    return Func('position', SqlBlock(substring).in_(string))
+
+
+def substring(string, pattern, for_=None):
+    a = SqlBlock(string,).from_(pattern)
+    if for_:
+        a = a.for_(for_)
+    return Func('substring', a)
