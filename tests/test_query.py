@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from buildpg import MultipleValues, S, Select, V, Values, funcs, render
+from buildpg import MultipleValues, S, Select, V, Values, asyncpg, funcs, render
+
+from .conftest import DB_NAME
 
 
 async def test_manual_select(conn):
@@ -64,9 +66,20 @@ async def test_values_executemany(conn):
     assert 6 == await conn.fetchval('SELECT COUNT(*) FROM users')
 
 
+async def test_values_executemany_default(conn):
+    co_id = await conn.fetchval('SELECT id FROM companies')
+    v = [
+        Values(company=co_id, first_name='anne', last_name=None, value=V('DEFAULT')),
+        Values(company=co_id, first_name='ben', last_name='better', value=V('DEFAULT')),
+        Values(company=co_id, first_name='charlie', last_name='cat', value=V('DEFAULT')),
+    ]
+    await conn.executemany_b('INSERT INTO users (:values__names) VALUES :values', v)
+    assert 6 == await conn.fetchval('SELECT COUNT(*) FROM users')
+
+
 async def test_position(conn):
-    a = await conn.fetchval_b('SELECT :a', a=funcs.position('xx', 'testing xx more'))
-    assert a == 9
+    result = await conn.fetch_b('SELECT :a', a=funcs.position('xx', 'testing xx more'))
+    assert [dict(r) for r in result] == [{'position': 9}]
 
 
 async def test_substring(conn):
@@ -77,3 +90,20 @@ async def test_substring(conn):
 async def test_substring_for(conn):
     a = await conn.fetchval_b('SELECT :a', a=funcs.substring('Samuel', funcs.cast(2, 'int'), funcs.cast(3, 'int')))
     assert a == 'amu'
+
+
+async def test_cursor(conn):
+    results = []
+    async for r in conn.cursor_b('SELECT :s FROM users ORDER BY :o', s=Select('first_name'), o=V('first_name').asc()):
+        results.append(tuple(r))
+        if len(results) == 2:
+            break
+    assert results == [('Franks',), ('Fred',)]
+
+
+async def test_pool():
+    async with asyncpg.create_pool_b(f'postgresql://postgres@localhost/{DB_NAME}') as pool:
+        async with pool.acquire() as conn:
+            v = await conn.fetchval_b('SELECT :v FROM users ORDER BY id LIMIT 1', v=funcs.right(V('first_name'), 3))
+
+    assert v == 'red'

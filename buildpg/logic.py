@@ -42,6 +42,8 @@ class Operator(str, Enum):
     for_ = ' for '
     factorial = '!'
     cast = '::'
+    asc = ' ASC'
+    desc = ' DESC'
     comma = ', '
 
 
@@ -80,9 +82,12 @@ PRECEDENCE = {
     Operator.gt: 40,
     Operator.ge: 40,
 
-    Operator.and_: 30,
-    Operator.or_: 20,
-    Operator.comma: 10,
+    Operator.asc: 30,
+    Operator.desc: 30,
+
+    Operator.and_: 20,
+    Operator.or_: 10,
+    Operator.comma: 0,
 }
 
 
@@ -183,6 +188,12 @@ class SqlBlock(Component):
 
     def cast(self, cast_type):
         return self.operate(Operator.cast, V(cast_type))
+
+    def asc(self):
+        return self.operate(Operator.asc)
+
+    def desc(self):
+        return self.operate(Operator.desc)
 
     def comma(self, other):
         return self.operate(Operator.comma, other)

@@ -3,6 +3,7 @@ import re
 __all__ = (
     'check_word',
     'BuildError',
+    'ComponentError',
     'UnsafeError',
     'yield_sep',
     'Literal',
@@ -37,7 +38,7 @@ class ComponentError(BuildError):
     pass
 
 
-class UnsafeError(RuntimeError):
+class UnsafeError(ComponentError):
     pass
 
 

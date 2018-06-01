@@ -13,9 +13,9 @@ class BuildPgConnection(Connection):  # noqa
         args_ = [render.get_params(a) for a in args]
         return await self.executemany(query, args_, timeout=timeout)
 
-    async def cursor_b(self, query_template, __timeout: float = None, __prefetch=None, **kwargs):
+    def cursor_b(self, query_template, __timeout: float = None, __prefetch=None, **kwargs):
         query, args = render(query_template, **kwargs)
-        return await self.cursor(query, *args, timeout=__timeout, prefetch=__prefetch)
+        return self.cursor(query, *args, timeout=__timeout, prefetch=__prefetch)
 
     async def fetch_b(self, query_template, __timeout: float=None, **kwargs):
         query, args = render(query_template, **kwargs)
@@ -35,6 +35,6 @@ async def connect_b(*args, **kwargs):
     return await connect(*args, **kwargs)  # noqa
 
 
-async def create_pool_b(*args, **kwargs):
+def create_pool_b(*args, **kwargs):
     kwargs.setdefault('connection_class', BuildPgConnection)
-    return await create_pool(*args, **kwargs)  # noqa
+    return create_pool(*args, **kwargs)  # noqa

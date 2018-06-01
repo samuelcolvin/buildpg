@@ -49,10 +49,8 @@ class Renderer:
                 return add_param(v)
         except ComponentError as exc:
             raise BuildError(f'"{var_name}": {exc}') from exc
-        except BuildError:
-            raise
         except Exception as exc:
-            raise BuildError(f'"{var_name}": error building content') from exc
+            raise BuildError(f'"{var_name}": error building content, {exc.__class__.__name__}: {exc}') from exc
 
     @classmethod
     def add_chunk(cls, gen, add_param):

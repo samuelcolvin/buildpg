@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import MultipleValues, Renderer, Select, Values, render
+from buildpg import BuildError, MultipleValues, Renderer, Select, UnsafeError, Values, VarLiteral, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
@@ -77,3 +77,30 @@ def test_different_regex():
     q, params = customer_render('testing: {{ x }} {{ x.names }}', x=Values(foo=1, bar=2))
     assert q == 'testing: ($1, $2) foo, bar'
     assert params == [1, 2]
+
+
+@pytest.mark.parametrize('query,ctx,msg', [
+    (':a :b', dict(a=1), 'variable "b" not found in context'),
+    (':a__names', dict(a=Values(1, 2)), '"a": "names" are not available for nameless values'),
+    (':a__missing', dict(a=1), '"a": error building content, '
+                               'AttributeError: \'int\' object has no attribute \'render_missing\''),
+])
+def test_errors(query, ctx, msg):
+    with pytest.raises(BuildError) as exc_info:
+        render(query, **ctx)
+    assert msg in str(exc_info.value)
+
+
+@pytest.mark.parametrize('func,exc', [
+    (lambda: VarLiteral('"y"'), UnsafeError),
+    (lambda: Select('"y"'), UnsafeError),
+    (lambda: VarLiteral(1), TypeError),
+    (lambda: Select('a', 'b', c='c'), ValueError),
+    (lambda: Select(), ValueError),
+    (lambda: MultipleValues(Values(1), 42), ValueError),
+    (lambda: MultipleValues(Values(a=1, b=2), Values(b=1, a=2)), ValueError),
+    (lambda: MultipleValues(Values(1), Values(1, 2)), ValueError),
+])
+def test_other_errors(func, exc):
+    with pytest.raises(exc):
+        func()
