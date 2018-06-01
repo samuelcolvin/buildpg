@@ -1,35 +1,35 @@
 import pytest
 
-from buildpg import MultipleValues, Select, Values, render
+from buildpg import MultipleValues, Renderer, Select, Values, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
     {
-        'template': 'simple: {{ v }}',
+        'template': 'simple: :v',
         'ctx': lambda: dict(v=1),
         'expected_query': 'simple: $1',
         'expected_params': [1],
     },
     {
-        'template': 'multiple: {{ a}} {{c }} {{b}}',
+        'template': 'multiple: :a :c :b',
         'ctx': lambda: dict(a=1, b=2, c=3),
         'expected_query': 'multiple: $1 $2 $3',
         'expected_params': [1, 3, 2],
     },
     {
-        'template': 'values: {{ a }}',
+        'template': 'values: :a',
         'ctx': lambda: dict(a=Values(1, 2, 3)),
         'expected_query': 'values: ($1, $2, $3)',
         'expected_params': [1, 2, 3],
     },
     {
-        'template': 'named values: {{ a }} {{ a.names }}',
+        'template': 'named values: :a :a__names',
         'ctx': lambda: dict(a=Values(foo=1, bar=2)),
         'expected_query': 'named values: ($1, $2) foo, bar',
         'expected_params': [1, 2],
     },
     {
-        'template': 'multiple values: {{ a }}',
+        'template': 'multiple values: :a',
         'ctx': lambda: dict(a=MultipleValues(
             Values(3, 2, 1),
             Values('i', 'j', 'k')
@@ -38,13 +38,13 @@ TESTS = [
         'expected_params': [3, 2, 1, 'i', 'j', 'k'],
     },
     {
-        'template': 'raw: {{the_raw_values}}',
+        'template': 'raw: :the_raw_values',
         'ctx': lambda: dict(the_raw_values=Select('x', 'y', '4')),
         'expected_query': 'raw: x, y, 4',
         'expected_params': [],
     },
     {
-        'template': 'select as: {{ select_as }}',
+        'template': 'select as: :select_as',
         'ctx': lambda: dict(select_as=Select(foo='foo_named', bar='bar_named', cat='dog')),
         'expected_query': 'select as: foo_named AS foo, bar_named AS bar, dog AS cat',
         'expected_params': [],
@@ -66,3 +66,14 @@ def test_render(template, ctx, expected_query, expected_params):
 ])
 def test_component_repr(component, s):
     assert s == repr(component())
+
+
+def test_different_regex():
+    customer_render = Renderer('{{ ?([\w.]+) ?}}', '.')
+    q, params = customer_render('testing: {{ a}} {{c }} {{b}}', a=1, b=2, c=3, x=Values(foo=1, bar=2))
+    assert q == 'testing: $1 $2 $3'
+    assert params == [1, 3, 2]
+
+    q, params = customer_render('testing: {{ x }} {{ x.names }}', x=Values(foo=1, bar=2))
+    assert q == 'testing: ($1, $2) foo, bar'
+    assert params == [1, 2]

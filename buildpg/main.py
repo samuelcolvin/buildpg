@@ -10,8 +10,9 @@ __all__ = (
 
 
 class Renderer:
-    def __init__(self, open='{{ ?', close=' ?}}'):
-        self.var_regex = re.compile(open + r'?(\w+)(?:\.(\w+))?' + close, flags=re.A)
+    def __init__(self, regex=r'(?<!:):(\w+)', sep='__'):
+        self.regex = re.compile(regex, flags=re.A)
+        self.sep = sep
 
     def __call__(self, query_template, **ctx):
         params = []
@@ -21,11 +22,15 @@ class Renderer:
             return f'${len(params)}'
 
         repl = partial(self.replace, ctx=ctx, add_param=add_param)
-        return self.var_regex.sub(repl, query_template), params
+        return self.regex.sub(repl, query_template), params
 
-    @classmethod
-    def replace(cls, m, *, ctx, add_param):
-        var_name, extra_name = m.groups()
+    def replace(self, m, *, ctx, add_param):
+        var_name = m.group(1)
+        if self.sep in var_name:
+            var_name, extra_name = var_name.split(self.sep, 1)
+        else:
+            extra_name = None
+
         try:
             v = ctx[var_name]
         except KeyError:
@@ -39,7 +44,7 @@ class Renderer:
                 render_gen = v.render
 
             if render_gen:
-                return ''.join(cls.add_chunk(render_gen(), add_param))
+                return ''.join(self.add_chunk(render_gen(), add_param))
             else:
                 return add_param(v)
         except ComponentError as exc:
