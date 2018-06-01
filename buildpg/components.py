@@ -8,10 +8,8 @@ __all__ = (
     'Literal',
     'VarLiteral',
     'Component',
-    'SelectDangerous',
     'Select',
     'Values',
-    'SelectAs',
     'MultipleValues',
 )
 
@@ -66,53 +64,28 @@ class Component:
         raise NotImplementedError()
 
     def __str__(self):
-        chunks = []
+        return ''.join(self._get_chunks(self.render()))
 
-        def add_chunk(chunk):
+    @classmethod
+    def _get_chunks(cls, gen):
+        for chunk in gen:
             if isinstance(chunk, Component):
-                for chunk_ in chunk.render():
-                    add_chunk(chunk_)
+                yield from cls._get_chunks(chunk.render())
             elif isinstance(chunk, str):
-                chunks.append(chunk)
+                yield chunk
             else:
-                chunks.append(str(chunk))
-
-        for chunk in self.render():
-            add_chunk(chunk)
-
-        return ''.join(chunks)
+                yield str(chunk)
 
     def __repr__(self):
         return f'<{self.__class__.__name__}({self})>'
 
 
-class SelectDangerous(Component):
-    __slots__ = 'args',
-
-    def __init__(self, *args):
-        self.args = args
-
-    def render(self):
-        yield Literal(', '.join(str(a) for a in self.args))
-
-
-class Select(SelectDangerous):
-    __slots__ = 'args',
-
-    def __init__(self, *args):
-        check_word_many(args)
-        super().__init__(*args)
-
-
-class Values(Component):
+class KeyValueComponent:
     __slots__ = 'values', 'names'
 
     def __init__(self, *args, **kwargs):
-        if args and kwargs:
+        if (args and kwargs) or (not args and not kwargs):
             raise ValueError('either args or kwargs are required but not both')
-
-        if not args and not kwargs:
-            raise ValueError('args or kwargs are required')
 
         if args:
             self.names = None
@@ -121,6 +94,8 @@ class Values(Component):
             self.names, self.values = zip(*kwargs.items())
             check_word_many(self.names)
 
+
+class Values(KeyValueComponent, Component):
     def render(self):
         yield Literal('(')
         yield from yield_sep(self.values)
@@ -132,16 +107,16 @@ class Values(Component):
         yield Literal(', '.join(self.names))
 
 
-class SelectAs(Values):
+class Select(KeyValueComponent, Component):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         check_word_many(self.values)
 
     def render(self):
-        yield Literal(', '.join(f'{v} AS {n}' for v, n in zip(self.values, self.names)))
-
-    def render_values(self):
-        yield Literal(', '.join(self.values))
+        if self.names:
+            yield Literal(', '.join(f'{v} AS {n}' for v, n in zip(self.values, self.names)))
+        else:
+            yield Literal(', '.join(self.values))
 
 
 class MultipleValues(Component):
