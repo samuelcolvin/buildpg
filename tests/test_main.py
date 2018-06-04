@@ -49,6 +49,12 @@ TESTS = [
         'expected_query': 'select as: foo_named AS foo, bar_named AS bar, dog AS cat',
         'expected_params': [],
     },
+    {
+        'template': 'numeric: :1000 :v1000',
+        'ctx': lambda: {'1000': 1, 'v1000': 2},
+        'expected_query': 'numeric: :1000 $1',
+        'expected_params': [2],
+    },
 ]
 
 

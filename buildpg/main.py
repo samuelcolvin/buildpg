@@ -10,7 +10,7 @@ __all__ = (
 
 
 class Renderer:
-    def __init__(self, regex=r'(?<!:):(\w+)', sep='__'):
+    def __init__(self, regex=r'(?<!:):([a-z][a-z\d_]*)', sep='__'):
         self.regex = re.compile(regex, flags=re.A)
         self.sep = sep
 
