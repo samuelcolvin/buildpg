@@ -20,8 +20,18 @@ install:
 script:
 - make lint
 - make test
+- ./tests/check_tag.py
 
 after_success:
 - ls -lha
 - bash <(curl -s https://codecov.io/bash)
 
+deploy:
+  provider: pypi
+  user: samuelcolvin
+  password:
+    secure: "r6GrFamnPGlimgSczftgGEQ2o+rrlwe5aqtpr6/mI42IUK4T32aMj7PDyjJedDBuum5Hqkfv4xluvm2Qqya8I0nu9wFgN19Cu6HLmF37mO0x8Ly936arf63pSfj0nDgL/guFMF9euSoZdRjiDnybapi5twdvUPqX4TPKduUdBRXmA+xkmSyh35e1MLUoNAIr7ghodoemle+kDBbRxtg8jj9/g5WKIU7fxNiUfpqK+Qv6A+pkqlrPIIQRVxVn0QhWnE0MjsZr064HM0AJ6XgdfwxSnkJMGy88B+132Kgoka/sJ0gGfgeIS6VOziImG9odyrqCYuRzmmKQ/d0038r/+t8qVBDcAXeTROCtiwjXbes3CGKeoIYPaOxccTlUjSPhL8a3/5NRkxdsrecXEtsZFPauLN4eAxiIhE710eyRBRt/PAcSBrduGAlnj8rc9oZb43PkGJ96bQ6nIfpfv9CxgGlkbBiDt6qB/7fp1XgxXISpLMdFi6Uh44UKfO9+nWrvOtPlwi2toXN8Hku8gqSms+v72i/U9azFdBGXYjMDoiZ2/OFpdtlaLSQDY6/eUZyTm9CYQOif9JTyE4knsXiskHgZxYl8hRbUGK3B7QcG3lJbFrF2G2Irc/z6aMPjLgo4t69uDRPeiVATWcI8/baSExMmu41pODyOw0gq1eS1MD4="
+  distributions: sdist bdist_wheel
+  on:
+    tags: true
+    python: 3.6
