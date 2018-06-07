@@ -1,5 +1,5 @@
 from . import funcs, logic
-from .components import Component, Literal, yield_sep
+from .components import Component, Literal, SelectFields, yield_sep
 
 
 class Clauses(Component):
@@ -21,8 +21,6 @@ class Clause(Component):
     base = NotImplemented
 
     def __init__(self, logic_block):
-        if not isinstance(logic_block, Component):
-            raise TypeError('Clause logic_block should be a Component')
         self.logic_block = logic_block
 
     def render(self):
@@ -37,9 +35,18 @@ def component_or_var(v):
     return v if isinstance(v, Component) else logic.Var(v)
 
 
+class Select(Clause):
+    base = 'SELECT'
+
+    def __init__(self, select):
+        if not isinstance(select, Component):
+            select = SelectFields(*select)
+        super().__init__(select)
+
+
 class CommaClause(Clause):
-    def __init__(self, *tables):
-        super().__init__(funcs.comma_sep(*[component_or_var(t) for t in tables]))
+    def __init__(self, *fields):
+        super().__init__(funcs.comma_sep(*[component_or_var(f) for f in fields]))
 
 
 class From(CommaClause):
@@ -50,8 +57,11 @@ class OrderBy(CommaClause):
     base = 'ORDER BY'
 
 
-class Limit(CommaClause):
+class Limit(Clause):
     base = 'LIMIT'
+
+    def __init__(self, limit_value):
+        super().__init__(limit_value)
 
 
 class Join(Clause):

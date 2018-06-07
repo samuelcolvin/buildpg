@@ -9,7 +9,7 @@ __all__ = (
     'Literal',
     'VarLiteral',
     'Component',
-    'Select',
+    'SelectFields',
     'Values',
     'MultipleValues',
 )
@@ -18,8 +18,6 @@ NOT_WORD = re.compile('[^\w.]', flags=re.A)
 
 
 def check_word(s):
-    if isinstance(s, int):
-        s = str(s)
     if not isinstance(s, str):
         raise TypeError('value is not a string')
     if NOT_WORD.search(s):
@@ -110,7 +108,7 @@ class Values(KeyValueComponent, Component):
         yield Literal(', '.join(self.names))
 
 
-class Select(KeyValueComponent, Component):
+class SelectFields(KeyValueComponent, Component):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         check_word_many(self.values)

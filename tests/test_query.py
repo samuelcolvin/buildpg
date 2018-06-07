@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from buildpg import MultipleValues, S, Select, V, Values, asyncpg, funcs, render
+from buildpg import MultipleValues, S, SelectFields, V, Values, asyncpg, funcs, render
 
 from .conftest import DB_NAME
 
 
 async def test_manual_select(conn):
-    query, params = render('SELECT :v FROM users ORDER BY first_name', v=Select('first_name', 'last_name'))
+    query, params = render('SELECT :v FROM users ORDER BY first_name', v=SelectFields('first_name', 'last_name'))
     v = await conn.fetch(query, *params)
     assert [
         {
@@ -27,7 +27,7 @@ async def test_manual_select(conn):
 async def test_manual_logic(conn):
     query, params = render(
         'SELECT :select FROM users WHERE :where ORDER BY :order_by',
-        select=Select('first_name'),
+        select=SelectFields('first_name'),
         where=V('created') > datetime(2021, 1, 1),
         order_by=V('last_name'),
     )
@@ -94,7 +94,8 @@ async def test_substring_for(conn):
 
 async def test_cursor(conn):
     results = []
-    async for r in conn.cursor_b('SELECT :s FROM users ORDER BY :o', s=Select('first_name'), o=V('first_name').asc()):
+    q = 'SELECT :s FROM users ORDER BY :o'
+    async for r in conn.cursor_b(q, s=SelectFields('first_name'), o=V('first_name').asc()):
         results.append(tuple(r))
         if len(results) == 2:
             break
