@@ -45,6 +45,7 @@ class Operator(str, Enum):
     asc = ' ASC'
     desc = ' DESC'
     comma = ', '
+    on = ' ON '
 
 
 @unique
@@ -88,6 +89,7 @@ PRECEDENCE = {
     Operator.and_: 20,
     Operator.or_: 10,
     Operator.comma: 0,
+    Operator.on: -10,
 }
 
 
@@ -198,6 +200,9 @@ class SqlBlock(Component):
     def comma(self, other):
         return self.operate(Operator.comma, other)
 
+    def on(self, other):
+        return self.operate(Operator.on, other)
+
     def _should_bracket(self, v):
         if self.op:
             sub_op = getattr(v, 'op', None)
@@ -218,6 +223,13 @@ class SqlBlock(Component):
             yield Literal(self.op.value)
             if self.v2:
                 yield from self._bracket(self.v2)
+
+
+def as_sql_block(n):
+    if isinstance(n, SqlBlock):
+        return n
+    else:
+        return SqlBlock(n)
 
 
 class Func(SqlBlock):

@@ -18,6 +18,8 @@ NOT_WORD = re.compile('[^\w.]', flags=re.A)
 
 
 def check_word(s):
+    if isinstance(s, int):
+        s = str(s)
     if not isinstance(s, str):
         raise TypeError('value is not a string')
     if NOT_WORD.search(s):

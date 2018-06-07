@@ -100,7 +100,7 @@ def test_errors(query, ctx, msg):
 @pytest.mark.parametrize('func,exc', [
     (lambda: VarLiteral('"y"'), UnsafeError),
     (lambda: Select('"y"'), UnsafeError),
-    (lambda: VarLiteral(1), TypeError),
+    (lambda: VarLiteral(1.1), TypeError),
     (lambda: Select('a', 'b', c='c'), ValueError),
     (lambda: Select(), ValueError),
     (lambda: MultipleValues(Values(1), 42), ValueError),

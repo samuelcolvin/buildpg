@@ -1,76 +1,69 @@
-from .logic import Func, SqlBlock
-
-
-def _as_block(n):
-    if isinstance(n, SqlBlock):
-        return n
-    else:
-        return SqlBlock(n)
+from . import logic
 
 
 def AND(arg, *args):
-    v = _as_block(arg)
+    v = logic.as_sql_block(arg)
     for a in args:
         v &= a
     return v
 
 
 def OR(arg, *args):
-    v = _as_block(arg)
+    v = logic.as_sql_block(arg)
     for a in args:
         v |= a
     return v
 
 
-def Vars(arg, *args):
-    v = _as_block(arg)
+def comma_sep(arg, *args):
+    v = logic.as_sql_block(arg)
     for a in args:
         v = v.comma(a)
     return v
 
 
 def cast(v, cast_type):
-    return _as_block(v).cast(cast_type)
+    return logic.as_sql_block(v).cast(cast_type)
 
 
 def upper(string):
-    return Func('upper', string)
+    return logic.Func('upper', string)
 
 
 def lower(string):
-    return Func('lower', string)
+    return logic.Func('lower', string)
 
 
 def length(string):
-    return Func('length', string)
+    return logic.Func('length', string)
 
 
 def left(string, n):
-    return Func('left', string, n)
+    return logic.Func('left', string, n)
 
 
 def right(string, n):
-    return Func('right', string, n)
+    return logic.Func('right', string, n)
 
 
 def sqrt(n):
-    return _as_block(n).sqrt()
+    return logic.as_sql_block(n).sqrt()
 
 
 def abs(n):
-    return _as_block(n).abs()
+    return logic.as_sql_block(n).abs()
 
 
 def factorial(n):
-    return _as_block(n).factorial()
+    return logic.as_sql_block(n).factorial()
 
 
 def position(substring, string):
-    return Func('position', SqlBlock(substring).in_(string))
+    return logic.Func('position', logic.SqlBlock(substring).in_(string))
 
 
 def substring(string, pattern, for_=None):
-    a = SqlBlock(string,).from_(pattern)
+    a = logic.SqlBlock(string,).from_(pattern)
     if for_:
         a = a.for_(for_)
-    return Func('substring', a)
+    return logic.Func('substring', a)
