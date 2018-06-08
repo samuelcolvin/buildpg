@@ -35,13 +35,14 @@ async def test_manual_logic(conn):
     assert ['Fred', 'Joe'] == [r[0] for r in v]
 
 
-async def test_logic(conn):
+async def test_logic(conn, caplog):
     a, b, c, d = await conn.fetchrow_b('SELECT :a, :b, :c, :d::int',
                                        a=funcs.cast(5, 'int') * 5, b=funcs.sqrt(676), c=S('a').cat('b'), d=987654)
     assert a == 25
     assert b == 26
     assert c == 'ab'
     assert d == 987654
+    assert caplog.text == ''
 
 
 async def test_multiple_values_execute(conn):
@@ -108,3 +109,10 @@ async def test_pool():
             v = await conn.fetchval_b('SELECT :v FROM users ORDER BY id LIMIT 1', v=funcs.right(V('first_name'), 3))
 
     assert v == 'red'
+
+
+async def test_log(conn, caplog):
+    a = await conn.fetchval_b('SELECT :a', _log=True, __timeout=12, a=funcs.cast(5, 'int') * 5)
+    assert a == 25
+
+    assert 'SELECT $1::int * $2\nparams: [5, 5]' in caplog.text

@@ -20,12 +20,12 @@ class Clause(Component):
     __slots__ = 'logic',
     base = NotImplemented
 
-    def __init__(self, logic_block):
-        self.logic_block = logic_block
+    def __init__(self, logic):
+        self.logic = logic
 
     def render(self):
         yield Literal(self.base + ' ')
-        yield self.logic_block
+        yield self.logic
 
     def __add__(self, other):
         return Clauses(self, other)
