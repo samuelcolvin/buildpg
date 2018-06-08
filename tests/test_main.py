@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import BuildError, MultipleValues, Renderer, SelectFields, UnsafeError, Values, VarLiteral, render
+from buildpg import BuildError, MultipleValues, Renderer, UnsafeError, Values, VarLiteral, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
@@ -38,18 +38,6 @@ TESTS = [
         'expected_params': [3, 2, 1, 'i', 'j', 'k'],
     },
     {
-        'template': 'raw: :the_raw_values',
-        'ctx': lambda: dict(the_raw_values=SelectFields('x', 'y', '4')),
-        'expected_query': 'raw: x, y, 4',
-        'expected_params': [],
-    },
-    {
-        'template': 'select as: :select_as',
-        'ctx': lambda: dict(select_as=SelectFields(foo='foo_named', bar='bar_named', cat='dog')),
-        'expected_query': 'select as: foo_named AS foo, bar_named AS bar, dog AS cat',
-        'expected_params': [],
-    },
-    {
         'template': 'numeric: :1000 :v1000',
         'ctx': lambda: {'1000': 1, 'v1000': 2},
         'expected_query': 'numeric: :1000 $1',
@@ -67,7 +55,6 @@ def test_render(template, ctx, expected_query, expected_params):
 
 
 @pytest.mark.parametrize('component,s', [
-    (lambda: SelectFields('a', 'b', 'c'), '<SelectFields(a, b, c)>'),
     (lambda: MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<MultipleValues((3, 2, 1), (1, 2, 3))>'),
 ])
 def test_component_repr(component, s):
@@ -99,10 +86,7 @@ def test_errors(query, ctx, msg):
 
 @pytest.mark.parametrize('func,exc', [
     (lambda: VarLiteral('"y"'), UnsafeError),
-    (lambda: SelectFields('"y"'), UnsafeError),
     (lambda: VarLiteral(1.1), TypeError),
-    (lambda: SelectFields('a', 'b', c='c'), ValueError),
-    (lambda: SelectFields(), ValueError),
     (lambda: MultipleValues(Values(1), 42), ValueError),
     (lambda: MultipleValues(Values(a=1, b=2), Values(b=1, a=2)), ValueError),
     (lambda: MultipleValues(Values(1), Values(1, 2)), ValueError),

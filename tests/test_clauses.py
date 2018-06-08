@@ -1,11 +1,12 @@
 import pytest
 
-from buildpg import SelectFields, V, clauses, render
+from buildpg import V, clauses, render
 
 
 @pytest.mark.parametrize('block,expected_query,expected_params', [
     (lambda: clauses.Select(['foo', 'bar']), 'SELECT foo, bar', []),
-    (lambda: clauses.Select(SelectFields(x='foo', y='bar')), 'SELECT foo AS x, bar AS y', []),
+    (lambda: clauses.Select(['foo', 'bar']), 'SELECT foo, bar', []),
+    (lambda: clauses.Select([V('foo').as_('x'), V('bar').as_('y')]), 'SELECT foo AS x, bar AS y', []),
     (lambda: clauses.From('foobar'), 'FROM foobar', []),
     (lambda: clauses.From('foo', 'bar'), 'FROM foo, bar', []),
     (lambda: clauses.From('foo', V('bar')), 'FROM foo, bar', []),

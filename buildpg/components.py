@@ -9,7 +9,6 @@ __all__ = (
     'Literal',
     'VarLiteral',
     'Component',
-    'SelectFields',
     'Values',
     'MultipleValues',
 )
@@ -81,7 +80,7 @@ class Component:
         return f'<{self.__class__.__name__}({self})>'
 
 
-class KeyValueComponent:
+class Values(Component):
     __slots__ = 'values', 'names'
 
     def __init__(self, *args, **kwargs):
@@ -95,8 +94,6 @@ class KeyValueComponent:
             self.names, self.values = zip(*kwargs.items())
             check_word_many(self.names)
 
-
-class Values(KeyValueComponent, Component):
     def render(self):
         yield Literal('(')
         yield from yield_sep(self.values)
@@ -106,18 +103,6 @@ class Values(KeyValueComponent, Component):
         if not self.names:
             raise ComponentError(f'"names" are not available for nameless values')
         yield Literal(', '.join(self.names))
-
-
-class SelectFields(KeyValueComponent, Component):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        check_word_many(self.values)
-
-    def render(self):
-        if self.names:
-            yield Literal(', '.join(f'{v} AS {n}' for v, n in zip(self.values, self.names)))
-        else:
-            yield Literal(', '.join(self.values))
 
 
 class MultipleValues(Component):

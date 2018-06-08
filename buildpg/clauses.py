@@ -1,5 +1,5 @@
 from . import funcs, logic
-from .components import Component, Literal, SelectFields, yield_sep
+from .components import Component, Literal, yield_sep
 
 
 class Clauses(Component):
@@ -40,7 +40,7 @@ class Select(Clause):
 
     def __init__(self, select):
         if not isinstance(select, Component):
-            select = SelectFields(*select)
+            select = logic.select_fields(*select)
         super().__init__(select)
 
 
@@ -68,7 +68,7 @@ class Join(Clause):
     base = 'JOIN'
 
     def __init__(self, table, on_clause=None):
-        v = logic.Var(table)
+        v = logic.as_var(table)
         if on_clause:
             v = v.on(on_clause)
         super().__init__(v)

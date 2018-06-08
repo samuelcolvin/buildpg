@@ -25,7 +25,7 @@ def comma_sep(arg, *args):
 def count(expr, as_=None):
     f = logic.Func('COUNT', logic.as_var(expr))
     if as_:
-        f = f.as_(logic.as_var(as_))
+        f = f.as_(as_)
     return f
 
 

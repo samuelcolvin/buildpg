@@ -10,6 +10,7 @@ __all__ = (
     'Var',
     'S',
     'V',
+    'select_fields',
 )
 
 
@@ -208,7 +209,7 @@ class SqlBlock(Component):
         return self.operate(Operator.on, other)
 
     def as_(self, other):
-        return self.operate(Operator.as_, other)
+        return self.operate(Operator.as_, as_var(other))
 
     def _should_parenthesise(self, v):
         if self.op:
@@ -284,6 +285,13 @@ class Not(Func):
 class Var(SqlBlock):
     def __init__(self, v1, *, op: Operator=None, v2=None):
         super().__init__(VarLiteral(v1), op=op, v2=v2)
+
+
+def select_fields(arg, *args):
+    v = as_var(arg)
+    for a in args:
+        v = v.comma(as_var(a))
+    return v
 
 
 S = SqlBlock
