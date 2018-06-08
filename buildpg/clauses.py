@@ -1,5 +1,5 @@
 from . import funcs, logic
-from .components import Component, Literal, yield_sep
+from .components import Component, RawDangerous, yield_sep
 
 
 class Clauses(Component):
@@ -9,7 +9,7 @@ class Clauses(Component):
         self.clauses = list(clauses)
 
     def render(self):
-        yield from yield_sep(self.clauses, sep=Literal('\n'))
+        yield from yield_sep(self.clauses, sep=RawDangerous('\n'))
 
     def __add__(self, other):
         self.clauses.append(other)
@@ -24,7 +24,7 @@ class Clause(Component):
         self.logic = logic
 
     def render(self):
-        yield Literal(self.base + ' ')
+        yield RawDangerous(self.base + ' ')
         yield self.logic
 
     def __add__(self, other):

@@ -53,6 +53,10 @@ def right(string, n):
     return logic.Func('right', string, n)
 
 
+def extract(expr):
+    return logic.Func('extract', expr)
+
+
 def sqrt(n):
     return logic.as_sql_block(n).sqrt()
 

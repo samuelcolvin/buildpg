@@ -1,7 +1,7 @@
 import re
 from functools import partial
 
-from .components import BuildError, Component, ComponentError, Literal
+from .components import BuildError, Component, ComponentError, RawDangerous
 
 __all__ = (
     'Renderer',
@@ -55,7 +55,7 @@ class Renderer:
     @classmethod
     def add_chunk(cls, gen, add_param):
         for chunk in gen:
-            if isinstance(chunk, Literal):
+            if isinstance(chunk, RawDangerous):
                 yield chunk
             elif isinstance(chunk, Component):
                 yield from cls.add_chunk(chunk.render(), add_param)
@@ -70,7 +70,7 @@ class Renderer:
         for chunk in gen:
             if isinstance(chunk, Component):
                 yield from cls._get_params(chunk.render())
-            elif not isinstance(chunk, Literal):
+            elif not isinstance(chunk, RawDangerous):
                 yield chunk
 
 

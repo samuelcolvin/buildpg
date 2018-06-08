@@ -1,6 +1,6 @@
 from enum import Enum, unique
 
-from .components import Component, Literal, VarLiteral, check_word, yield_sep
+from .components import Component, RawDangerous, VarLiteral, check_word, yield_sep
 
 __all__ = (
     'LogicError',
@@ -194,7 +194,7 @@ class SqlBlock(Component):
         return self.operate(Operator.for_, other)
 
     def cast(self, cast_type):
-        return self.operate(Operator.cast, V(cast_type))
+        return self.operate(Operator.cast, as_var(cast_type))
 
     def asc(self):
         return self.operate(Operator.asc)
@@ -219,16 +219,16 @@ class SqlBlock(Component):
 
     def _bracket(self, v):
         if self._should_parenthesise(v):
-            yield Literal('(')
+            yield RawDangerous('(')
             yield v
-            yield Literal(')')
+            yield RawDangerous(')')
         else:
             yield v
 
     def render(self):
         yield from self._bracket(self.v1)
         if self.op:
-            yield Literal(self.op.value)
+            yield RawDangerous(self.op.value)
             if self.v2:
                 yield from self._bracket(self.v2)
 
@@ -261,16 +261,16 @@ class Func(SqlBlock):
         return SqlBlock(self, op=op, v2=v2)
 
     def render(self):
-        yield Literal(self.func + '(')
+        yield RawDangerous(self.func + '(')
         yield from yield_sep(self.v1)
-        yield Literal(')')
+        yield RawDangerous(')')
 
 
 class LeftOp(Func):
     allow_unsafe = True
 
     def render(self):
-        yield Literal(self.func.value)
+        yield RawDangerous(self.func.value)
         yield from self._bracket(self.v1[0])
 
 

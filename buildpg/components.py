@@ -6,7 +6,7 @@ __all__ = (
     'ComponentError',
     'UnsafeError',
     'yield_sep',
-    'Literal',
+    'RawDangerous',
     'VarLiteral',
     'Component',
     'Values',
@@ -41,11 +41,11 @@ class UnsafeError(ComponentError):
     pass
 
 
-class Literal(str):
+class RawDangerous(str):
     pass
 
 
-def yield_sep(iterable, sep=Literal(', ')):
+def yield_sep(iterable, sep=RawDangerous(', ')):
     iter_ = iter(iterable)
     yield next(iter_)
     for v in iter_:
@@ -53,7 +53,7 @@ def yield_sep(iterable, sep=Literal(', ')):
         yield v
 
 
-class VarLiteral(Literal):
+class VarLiteral(RawDangerous):
     def __init__(self, s: str):
         check_word(s)
         str.__init__(s)
@@ -95,14 +95,14 @@ class Values(Component):
             check_word_many(self.names)
 
     def render(self):
-        yield Literal('(')
+        yield RawDangerous('(')
         yield from yield_sep(self.values)
-        yield Literal(')')
+        yield RawDangerous(')')
 
     def render_names(self):
         if not self.names:
             raise ComponentError(f'"names" are not available for nameless values')
-        yield Literal(', '.join(self.names))
+        yield RawDangerous(', '.join(self.names))
 
 
 class MultipleValues(Component):

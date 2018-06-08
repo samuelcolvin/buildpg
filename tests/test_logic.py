@@ -132,6 +132,7 @@ def test_render(template, var, expected_query, expected_params):
     (lambda: funcs.position('a', 'b'), 'position($1 in $2)'),
     (lambda: funcs.substring('a', 'b'), 'substring($1 from $2)'),
     (lambda: funcs.substring('x', 2, 3), 'substring($1 from $2 for $3)'),
+    (lambda: funcs.extract(V('epoch').from_(V('foo.bar'))).cast('int'), 'extract(epoch from foo.bar)::int'),
     (lambda: funcs.AND('a', 'b', 'c'), '$1 AND $2 AND $3'),
     (lambda: funcs.AND('a', 'b', V('c') | V('d')), '$1 AND $2 AND (c OR d)'),
     (lambda: funcs.OR('a', 'b', V('c') & V('d')), '$1 OR $2 OR c AND d'),
