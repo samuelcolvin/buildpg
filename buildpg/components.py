@@ -14,7 +14,7 @@ __all__ = (
     'MultipleValues',
 )
 
-NOT_WORD = re.compile('[^\w.]', flags=re.A)
+NOT_WORD = re.compile(r'[^\w.*]', flags=re.A)
 
 
 def check_word(s):

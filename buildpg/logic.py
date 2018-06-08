@@ -46,6 +46,8 @@ class Operator(str, Enum):
     desc = ' DESC'
     comma = ', '
     on = ' ON '
+    as_ = ' AS '
+    func = '_function_'
 
 
 @unique
@@ -56,6 +58,7 @@ class LeftOperator(str, Enum):
 
 
 PRECEDENCE = {
+    Operator.func: 140,
     Operator.cast: 130,
 
     LeftOperator.neg: 120,
@@ -85,11 +88,12 @@ PRECEDENCE = {
 
     Operator.asc: 30,
     Operator.desc: 30,
+    Operator.on: 30,
+    Operator.as_: 30,
 
     Operator.and_: 20,
     Operator.or_: 10,
     Operator.comma: 0,
-    Operator.on: -10,
 }
 
 
@@ -203,14 +207,17 @@ class SqlBlock(Component):
     def on(self, other):
         return self.operate(Operator.on, other)
 
-    def _should_bracket(self, v):
+    def as_(self, other):
+        return self.operate(Operator.as_, other)
+
+    def _should_parenthesise(self, v):
         if self.op:
             sub_op = getattr(v, 'op', None)
             if sub_op and PRECEDENCE.get(self.op, 0) > PRECEDENCE.get(sub_op, -1):
                 return True
 
     def _bracket(self, v):
-        if self._should_bracket(v):
+        if self._should_parenthesise(v):
             yield Literal('(')
             yield v
             yield Literal(')')
@@ -232,19 +239,28 @@ def as_sql_block(n):
         return SqlBlock(n)
 
 
+def as_var(n):
+    if isinstance(n, SqlBlock):
+        return n
+    else:
+        return Var(n)
+
+
 class Func(SqlBlock):
+    __slots__ = 'v1', 'op', 'func', 'v2'
     allow_unsafe = False
 
     def __init__(self, func, *args):
+        self.func = func
         if not self.allow_unsafe:
             check_word(func)
-        super().__init__(args, op=func)
+        super().__init__(args, op=Operator.func)
 
     def operate(self, op: Operator, v2=None):
         return SqlBlock(self, op=op, v2=v2)
 
     def render(self):
-        yield Literal(self.op + '(')
+        yield Literal(self.func + '(')
         yield from yield_sep(self.v1)
         yield Literal(')')
 
@@ -253,7 +269,7 @@ class LeftOp(Func):
     allow_unsafe = True
 
     def render(self):
-        yield Literal(self.op.value)
+        yield Literal(self.func.value)
         yield from self._bracket(self.v1[0])
 
 

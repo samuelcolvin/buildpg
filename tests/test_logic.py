@@ -62,7 +62,7 @@ TESTS = [
     {
         'template': 'inv chain: :var',
         'var': lambda: ~(V('x') == 2) | V('y'),
-        'expected_query': 'inv chain: (NOT(x = $1)) OR y',
+        'expected_query': 'inv chain: NOT(x = $1) OR y',
         'expected_params': [2],
     },
     {
@@ -122,9 +122,12 @@ def test_render(template, var, expected_query, expected_params):
     (lambda: funcs.sqrt(4), '|/ $1'),
     (lambda: funcs.abs(4), '@ $1'),
     (lambda: funcs.factorial(4), '$1!'),
+    (lambda: funcs.count('*'), 'COUNT(*)'),
+    (lambda: funcs.count(V('*')), 'COUNT(*)'),
+    (lambda: funcs.count('*', 'foobar'), 'COUNT(*) AS foobar'),
     (lambda: funcs.upper('a'), 'upper($1)'),
     (lambda: funcs.lower('a'), 'lower($1)'),
-    (lambda: funcs.lower('a'), 'lower($1)'),
+    (lambda: funcs.lower('a') > 4, 'lower($1) > $2'),
     (lambda: funcs.length('a'), 'length($1)'),
     (lambda: funcs.position('a', 'b'), 'position($1 in $2)'),
     (lambda: funcs.substring('a', 'b'), 'substring($1 from $2)'),

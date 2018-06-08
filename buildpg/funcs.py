@@ -22,6 +22,13 @@ def comma_sep(arg, *args):
     return v
 
 
+def count(expr, as_=None):
+    f = logic.Func('COUNT', logic.as_var(expr))
+    if as_:
+        f = f.as_(logic.as_var(as_))
+    return f
+
+
 def cast(v, cast_type):
     return logic.as_sql_block(v).cast(cast_type)
 
