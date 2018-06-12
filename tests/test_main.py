@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import BuildError, MultipleValues, Renderer, UnsafeError, Values, VarLiteral, render
+from buildpg import BuildError, MultipleValues, Renderer, SetValues, UnsafeError, Values, VarLiteral, render
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
@@ -36,6 +36,12 @@ TESTS = [
         )),
         'expected_query': 'multiple values: ($1, $2, $3), ($4, $5, $6)',
         'expected_params': [3, 2, 1, 'i', 'j', 'k'],
+    },
+    {
+        'template': 'set values: :a',
+        'ctx': lambda: dict(a=SetValues(foo=123, bar='b', c='this is a value')),
+        'expected_query': 'set values: foo=$1, bar=$2, c=$3',
+        'expected_params': [123, 'b', 'this is a value'],
     },
     {
         'template': 'numeric: :1000 :v1000',
@@ -86,7 +92,9 @@ def test_errors(query, ctx, msg):
 
 @pytest.mark.parametrize('func,exc', [
     (lambda: VarLiteral('"y"'), UnsafeError),
+    (lambda: Values(**{';foobar': 'xx'}), UnsafeError),
     (lambda: VarLiteral(1.1), TypeError),
+    (lambda: Values(1, 2, c=3), ValueError),
     (lambda: MultipleValues(Values(1), 42), ValueError),
     (lambda: MultipleValues(Values(a=1, b=2), Values(b=1, a=2)), ValueError),
     (lambda: MultipleValues(Values(1), Values(1, 2)), ValueError),

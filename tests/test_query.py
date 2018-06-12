@@ -118,7 +118,7 @@ async def test_log(conn, capsys):
     assert 'SELECT' in capsys.readouterr().out
 
 
-async def test_log_callable(conn, capsys):
+async def test_log_callable(conn):
     logged_message = None
 
     def foobar(arg):

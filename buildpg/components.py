@@ -11,6 +11,7 @@ __all__ = (
     'Component',
     'Values',
     'MultipleValues',
+    'SetValues',
 )
 
 NOT_WORD = re.compile(r'[^\w.*]', flags=re.A)
@@ -125,3 +126,23 @@ class MultipleValues(Component):
 
     def render(self):
         yield from yield_sep(self.rows)
+
+
+class SetValues(Component):
+    __slots__ = 'kwargs',
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    @staticmethod
+    def _yield_pairs(k, v):
+        yield VarLiteral(k)
+        yield RawDangerous('=')
+        yield v
+
+    def render(self):
+        iter_ = iter(self.kwargs.items())
+        yield from self._yield_pairs(*next(iter_))
+        for k, v in iter_:
+            yield RawDangerous(', ')
+            yield from self._yield_pairs(k, v)

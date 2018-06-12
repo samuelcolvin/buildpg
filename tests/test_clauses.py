@@ -6,6 +6,7 @@ from buildpg import V, clauses, render
 @pytest.mark.parametrize('block,expected_query,expected_params', [
     (lambda: clauses.Select(['foo', 'bar']), 'SELECT foo, bar', []),
     (lambda: clauses.Select(['foo', 'bar']), 'SELECT foo, bar', []),
+    (lambda: clauses.Select(V('foo').comma(V('bar'))), 'SELECT foo, bar', []),
     (lambda: clauses.Select([V('foo').as_('x'), V('bar').as_('y')]), 'SELECT foo AS x, bar AS y', []),
     (lambda: clauses.From('foobar'), 'FROM foobar', []),
     (lambda: clauses.From('foo', 'bar'), 'FROM foo, bar', []),

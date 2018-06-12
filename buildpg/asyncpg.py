@@ -9,7 +9,7 @@ try:
     from pygments import highlight
     from pygments.lexers.sql import PlPgsqlLexer
     from pygments.formatters import Terminal256Formatter
-except ImportError:
+except ImportError:  # pragma: no cover
     sqlparse = None
 
 
@@ -19,7 +19,7 @@ class BuildPgConnection(Connection):  # noqa
 
     @staticmethod
     def format_sql(sql):
-        if sqlparse:
+        if sqlparse is not None:
             sql = indent(sqlparse.format(str(sql), reindent=True), ' ' * 4)
             return highlight(sql, PlPgsqlLexer(), Terminal256Formatter(style='monokai')).strip('\n')
         else:
