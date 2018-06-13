@@ -40,7 +40,7 @@ TESTS = [
     {
         'template': 'set values: :a',
         'ctx': lambda: dict(a=SetValues(foo=123, bar='b', c='this is a value')),
-        'expected_query': 'set values: foo=$1, bar=$2, c=$3',
+        'expected_query': 'set values: foo = $1, bar = $2, c = $3',
         'expected_params': [123, 'b', 'this is a value'],
     },
     {

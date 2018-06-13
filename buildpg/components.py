@@ -137,7 +137,7 @@ class SetValues(Component):
     @staticmethod
     def _yield_pairs(k, v):
         yield VarLiteral(k)
-        yield RawDangerous('=')
+        yield RawDangerous(' = ')
         yield v
 
     def render(self):
