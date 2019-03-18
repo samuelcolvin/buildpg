@@ -1,17 +1,25 @@
 language: python
 
-services:
+addons:
   postgresql: '9.6'
+
+services:
+- postgresql
 
 cache: pip
 
-python:
-- '3.6'
-- 'nightly'  # currently 3.7
-
 matrix:
+  include:
+  - python: '3.6'
+  - python: '3.7'
+    dist: xenial
+    sudo: required
+  - python: 3.8-dev
+    dist: xenial
+    sudo: required
+
   allow_failures:
-  - python: 'nightly'
+  - python: 3.8-dev
 
 install:
 - make install

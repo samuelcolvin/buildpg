@@ -7,6 +7,8 @@ __all__ = ('Renderer', 'render')
 
 
 class Renderer:
+    __slots__ = 'regex', 'sep'
+
     def __init__(self, regex=r'(?<!:):([a-z][a-z\d_]*)', sep='__'):
         self.regex = re.compile(regex, flags=re.A)
         self.sep = sep
