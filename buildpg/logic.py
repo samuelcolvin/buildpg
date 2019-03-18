@@ -289,11 +289,10 @@ def select_fields(arg, *args):
     return v
 
 
-class _EmptyClass(SqlBlock):
+class Empty(SqlBlock):
     def __init__(self, *, op: Operator = None, v2=None):
         super().__init__(VarLiteral(''), op=op, v2=v2)
 
 
-Empty = _EmptyClass()
 S = SqlBlock
 V = Var

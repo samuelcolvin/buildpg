@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import Empty, Func, S, SqlBlock, V, Var, funcs, render
+from buildpg import Empty, Func, S, SqlBlock, V, Var, funcs, render, select_fields, RawDangerous
 
 args = 'template', 'var', 'expected_query', 'expected_params'
 TESTS = [
@@ -122,7 +122,8 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: funcs.comma_sep(V('first_name'), 123), 'first_name, $1'),
         (lambda: Func('foobar', V('x'), V('y')), 'foobar(x, y)'),
         (lambda: Func('foobar', funcs.comma_sep('x', 'y')), 'foobar($1, $2)'),
-        (lambda: Empty & (V('foo') == 4), ' AND foo = $1'),
+        (lambda: Empty() & (V('foo') == 4), ' AND foo = $1'),
+        (lambda: Empty() & (V('bar') == 4), ' AND bar = $1'),
         (lambda: V('epoch').at_time_zone('MST'), 'epoch AT TIME ZONE $1'),
         (lambda: S('2032-02-16 19:38:40-08').at_time_zone('MST'), '$1 AT TIME ZONE $2'),
         (lambda: V('foo').matches(V('bar')), 'foo @@ bar'),
@@ -130,6 +131,9 @@ def test_render(template, var, expected_query, expected_params):
             lambda: funcs.to_tsvector('fat cats ate rats').matches(funcs.to_tsquery('cat & rat')),
             'to_tsvector($1) @@ to_tsquery($2)',
         ),
+        (lambda: funcs.now(), 'now()'),
+        (lambda: select_fields('foo', 'bar'), 'foo, bar'),
+        (lambda: select_fields('foo', S(RawDangerous("'raw text'"))), "foo, 'raw text'"),
     ],
 )
 def test_simple_blocks(block, expected_query):

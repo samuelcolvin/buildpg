@@ -29,6 +29,10 @@ def count(expr, as_=None):
     return f
 
 
+def now():
+    return logic.SqlBlock(logic.RawDangerous('now()'))
+
+
 def cast(v, cast_type):
     return logic.as_sql_block(v).cast(cast_type)
 
