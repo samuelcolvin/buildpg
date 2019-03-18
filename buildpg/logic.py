@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 from .components import Component, RawDangerous, VarLiteral, check_word, yield_sep
 
-__all__ = ('LogicError', 'SqlBlock', 'Func', 'Not', 'Var', 'S', 'V', 'select_fields')
+__all__ = ('LogicError', 'SqlBlock', 'Func', 'Not', 'Var', 'S', 'V', 'select_fields', 'Empty')
 
 
 class LogicError(RuntimeError):
@@ -279,5 +279,11 @@ def select_fields(arg, *args):
     return v
 
 
+class _EmptyClass(SqlBlock):
+    def __init__(self, *, op: Operator = None, v2=None):
+        super().__init__(VarLiteral(''), op=op, v2=v2)
+
+
+Empty = _EmptyClass()
 S = SqlBlock
 V = Var

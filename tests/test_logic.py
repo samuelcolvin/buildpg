@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import Func, S, SqlBlock, V, Var, funcs, render
+from buildpg import Func, Empty, S, SqlBlock, V, Var, funcs, render
 
 args = 'template', 'var', 'expected_query', 'expected_params'
 TESTS = [
@@ -122,6 +122,7 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: funcs.comma_sep(V('first_name'), 123), 'first_name, $1'),
         (lambda: Func('foobar', V('x'), V('y')), 'foobar(x, y)'),
         (lambda: Func('foobar', funcs.comma_sep('x', 'y')), 'foobar($1, $2)'),
+        (lambda: Empty & (V('foo') == 4), ' AND foo = $1'),
     ],
 )
 def test_simple_blocks(block, expected_query):
