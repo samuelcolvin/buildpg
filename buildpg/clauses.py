@@ -92,3 +92,10 @@ class CrossJoin(Join):
 
 class Where(Clause):
     base = 'WHERE'
+
+
+class Offset(Clause):
+    base = 'OFFSET'
+
+    def __init__(self, offset_value):
+        super().__init__(offset_value)

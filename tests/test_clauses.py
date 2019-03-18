@@ -18,6 +18,7 @@ from buildpg import V, clauses, render
         (lambda: clauses.From('a') + clauses.Join('b') + clauses.Join('c'), 'FROM a\nJOIN b\nJOIN c', []),
         (lambda: clauses.OrderBy('apple', V('pear').desc()), 'ORDER BY apple, pear DESC', []),
         (lambda: clauses.Limit(20), 'LIMIT $1', [20]),
+        (lambda: clauses.Offset(20), 'OFFSET $1', [20]),
     ],
 )
 def test_simple_blocks(block, expected_query, expected_params):
