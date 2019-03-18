@@ -74,7 +74,7 @@ def position(substring, string):
 
 
 def substring(string, pattern, for_=None):
-    a = logic.SqlBlock(string,).from_(pattern)
+    a = logic.SqlBlock(string).from_(pattern)
     if for_:
         a = a.for_(for_)
     return logic.Func('substring', a)

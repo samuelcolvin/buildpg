@@ -2,16 +2,7 @@ from enum import Enum, unique
 
 from .components import Component, RawDangerous, VarLiteral, check_word, yield_sep
 
-__all__ = (
-    'LogicError',
-    'SqlBlock',
-    'Func',
-    'Not',
-    'Var',
-    'S',
-    'V',
-    'select_fields',
-)
+__all__ = ('LogicError', 'SqlBlock', 'Func', 'Not', 'Var', 'S', 'V', 'select_fields')
 
 
 class LogicError(RuntimeError):
@@ -61,37 +52,31 @@ class LeftOperator(str, Enum):
 PRECEDENCE = {
     Operator.func: 140,
     Operator.cast: 130,
-
     LeftOperator.neg: 120,
     LeftOperator.sqrt: 120,
     LeftOperator.abs: 120,
-
     Operator.pow: 100,
     Operator.mod: 90,
     Operator.mul: 80,
     Operator.div: 70,
     Operator.add: 60,
     Operator.sub: 50,
-
     Operator.contains: 35,
     Operator.contained_by: 35,
     Operator.like: 35,
     Operator.cat: 35,
     Operator.in_: 35,
     Operator.from_: 35,
-
     Operator.eq: 40,
     Operator.ne: 40,
     Operator.lt: 40,
     Operator.le: 40,
     Operator.gt: 40,
     Operator.ge: 40,
-
     Operator.asc: 30,
     Operator.desc: 30,
     Operator.on: 30,
     Operator.as_: 30,
-
     Operator.and_: 20,
     Operator.or_: 10,
     Operator.comma: 0,

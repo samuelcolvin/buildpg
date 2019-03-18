@@ -11,14 +11,14 @@ install:
 .PHONY: format
 format:
 	$(isort)
-	#$(black)
+	$(black)
 
 .PHONY: lint
 lint:
 	python setup.py check -rms
 	flake8 buildpg/ tests/
 	$(isort) --check-only
-	#$(black) --check arq
+	$(black) --check
 
 .PHONY: test
 test:

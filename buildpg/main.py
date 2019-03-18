@@ -3,10 +3,7 @@ from functools import partial
 
 from .components import BuildError, Component, ComponentError, RawDangerous
 
-__all__ = (
-    'Renderer',
-    'render',
-)
+__all__ = ('Renderer', 'render')
 
 
 class Renderer:

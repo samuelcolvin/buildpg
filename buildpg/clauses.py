@@ -17,7 +17,7 @@ class Clauses(Component):
 
 
 class Clause(Component):
-    __slots__ = 'logic',
+    __slots__ = ('logic',)
     base = NotImplemented
 
     def __init__(self, logic):

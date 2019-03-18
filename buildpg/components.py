@@ -129,7 +129,7 @@ class MultipleValues(Component):
 
 
 class SetValues(Component):
-    __slots__ = 'kwargs',
+    __slots__ = ('kwargs',)
 
     def __init__(self, **kwargs):
         self.kwargs = kwargs

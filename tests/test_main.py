@@ -4,12 +4,7 @@ from buildpg import BuildError, MultipleValues, Renderer, SetValues, UnsafeError
 
 args = 'template', 'ctx', 'expected_query', 'expected_params'
 TESTS = [
-    {
-        'template': 'simple: :v',
-        'ctx': lambda: dict(v=1),
-        'expected_query': 'simple: $1',
-        'expected_params': [1],
-    },
+    {'template': 'simple: :v', 'ctx': lambda: dict(v=1), 'expected_query': 'simple: $1', 'expected_params': [1]},
     {
         'template': 'multiple: :a :c :b',
         'ctx': lambda: dict(a=1, b=2, c=3),
@@ -30,10 +25,7 @@ TESTS = [
     },
     {
         'template': 'multiple values: :a',
-        'ctx': lambda: dict(a=MultipleValues(
-            Values(3, 2, 1),
-            Values('i', 'j', 'k')
-        )),
+        'ctx': lambda: dict(a=MultipleValues(Values(3, 2, 1), Values('i', 'j', 'k'))),
         'expected_query': 'multiple values: ($1, $2, $3), ($4, $5, $6)',
         'expected_params': [3, 2, 1, 'i', 'j', 'k'],
     },
@@ -60,9 +52,10 @@ def test_render(template, ctx, expected_query, expected_params):
     assert expected_params == params
 
 
-@pytest.mark.parametrize('component,s', [
-    (lambda: MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<MultipleValues((3, 2, 1), (1, 2, 3))>'),
-])
+@pytest.mark.parametrize(
+    'component,s',
+    [(lambda: MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<MultipleValues((3, 2, 1), (1, 2, 3))>')],
+)
 def test_component_repr(component, s):
     assert s == repr(component())
 
@@ -78,27 +71,36 @@ def test_different_regex():
     assert params == [1, 2]
 
 
-@pytest.mark.parametrize('query,ctx,msg', [
-    (':a :b', dict(a=1), 'variable "b" not found in context'),
-    (':a__names', dict(a=Values(1, 2)), '"a": "names" are not available for nameless values'),
-    (':a__missing', dict(a=1), '"a": error building content, '
-                               'AttributeError: \'int\' object has no attribute \'render_missing\''),
-])
+@pytest.mark.parametrize(
+    'query,ctx,msg',
+    [
+        (':a :b', dict(a=1), 'variable "b" not found in context'),
+        (':a__names', dict(a=Values(1, 2)), '"a": "names" are not available for nameless values'),
+        (
+            ':a__missing',
+            dict(a=1),
+            '"a": error building content, ' 'AttributeError: \'int\' object has no attribute \'render_missing\'',
+        ),
+    ],
+)
 def test_errors(query, ctx, msg):
     with pytest.raises(BuildError) as exc_info:
         render(query, **ctx)
     assert msg in str(exc_info.value)
 
 
-@pytest.mark.parametrize('func,exc', [
-    (lambda: VarLiteral('"y"'), UnsafeError),
-    (lambda: Values(**{';foobar': 'xx'}), UnsafeError),
-    (lambda: VarLiteral(1.1), TypeError),
-    (lambda: Values(1, 2, c=3), ValueError),
-    (lambda: MultipleValues(Values(1), 42), ValueError),
-    (lambda: MultipleValues(Values(a=1, b=2), Values(b=1, a=2)), ValueError),
-    (lambda: MultipleValues(Values(1), Values(1, 2)), ValueError),
-])
+@pytest.mark.parametrize(
+    'func,exc',
+    [
+        (lambda: VarLiteral('"y"'), UnsafeError),
+        (lambda: Values(**{';foobar': 'xx'}), UnsafeError),
+        (lambda: VarLiteral(1.1), TypeError),
+        (lambda: Values(1, 2, c=3), ValueError),
+        (lambda: MultipleValues(Values(1), 42), ValueError),
+        (lambda: MultipleValues(Values(a=1, b=2), Values(b=1, a=2)), ValueError),
+        (lambda: MultipleValues(Values(1), Values(1, 2)), ValueError),
+    ],
+)
 def test_other_errors(func, exc):
     with pytest.raises(exc):
         func()

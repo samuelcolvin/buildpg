@@ -4,24 +4,9 @@ from buildpg import Func, S, SqlBlock, V, Var, funcs, render
 
 args = 'template', 'var', 'expected_query', 'expected_params'
 TESTS = [
-    {
-        'template': 'eq: :var',
-        'var': lambda: S(1) > 2,
-        'expected_query': 'eq: $1 > $2',
-        'expected_params': [1, 2],
-    },
-    {
-        'template': 'and: :var',
-        'var': lambda: S(1) & 2,
-        'expected_query': 'and: $1 AND $2',
-        'expected_params': [1, 2],
-    },
-    {
-        'template': 'or: :var',
-        'var': lambda: S(1) | 2,
-        'expected_query': 'or: $1 OR $2',
-        'expected_params': [1, 2],
-    },
+    {'template': 'eq: :var', 'var': lambda: S(1) > 2, 'expected_query': 'eq: $1 > $2', 'expected_params': [1, 2]},
+    {'template': 'and: :var', 'var': lambda: S(1) & 2, 'expected_query': 'and: $1 AND $2', 'expected_params': [1, 2]},
+    {'template': 'or: :var', 'var': lambda: S(1) | 2, 'expected_query': 'or: $1 OR $2', 'expected_params': [1, 2]},
     {
         'template': 'inv: :var',
         'var': lambda: ~(S(1) % 2),
@@ -34,12 +19,7 @@ TESTS = [
         'expected_query': 'double inv: $1 % $2',
         'expected_params': [1, 2],
     },
-    {
-        'template': 'eq: :var',
-        'var': lambda: Var('foo') > 2,
-        'expected_query': 'eq: foo > $1',
-        'expected_params': [2],
-    },
+    {'template': 'eq: :var', 'var': lambda: Var('foo') > 2, 'expected_query': 'eq: foo > $1', 'expected_params': [2]},
     {
         'template': 'chain: :var',
         'var': lambda: V('x') + 4 + 2 + 1,
@@ -99,57 +79,63 @@ def test_render(template, var, expected_query, expected_params):
     assert expected_params == params
 
 
-@pytest.mark.parametrize('block,expected_query', [
-    (lambda: SqlBlock(1) == 1, '$1 = $2'),
-    (lambda: SqlBlock(1) != 1, '$1 != $2'),
-    (lambda: SqlBlock(1) < 1, '$1 < $2'),
-    (lambda: SqlBlock(1) <= 1, '$1 <= $2'),
-    (lambda: SqlBlock(1) > 1, '$1 > $2'),
-    (lambda: SqlBlock(1) >= 1, '$1 >= $2'),
-    (lambda: SqlBlock(1) + 1, '$1 + $2'),
-    (lambda: SqlBlock(1) - 1, '$1 - $2'),
-    (lambda: SqlBlock(1) * 1, '$1 * $2'),
-    (lambda: SqlBlock(1) / 1, '$1 / $2'),
-    (lambda: SqlBlock(1) % 1, '$1 % $2'),
-    (lambda: SqlBlock(1) ** 1, '$1 ^ $2'),
-    (lambda: V('x').contains(V('y')), 'x @> y'),
-    (lambda: V('x').contained_by(V('y')), 'x <@ y'),
-    (lambda: V('x').like('y'), 'x LIKE $1'),
-    (lambda: V('x').cat('y'), 'x || $1'),
-    (lambda: V('x').comma(V('y')), 'x, y'),
-    (lambda: V('a').asc(), 'a ASC'),
-    (lambda: V('a').desc(), 'a DESC'),
-    (lambda: funcs.sqrt(4), '|/ $1'),
-    (lambda: funcs.abs(4), '@ $1'),
-    (lambda: funcs.factorial(4), '$1!'),
-    (lambda: funcs.count('*'), 'COUNT(*)'),
-    (lambda: funcs.count(V('*')), 'COUNT(*)'),
-    (lambda: funcs.count('*', 'foobar'), 'COUNT(*) AS foobar'),
-    (lambda: funcs.upper('a'), 'upper($1)'),
-    (lambda: funcs.lower('a'), 'lower($1)'),
-    (lambda: funcs.lower('a') > 4, 'lower($1) > $2'),
-    (lambda: funcs.length('a'), 'length($1)'),
-    (lambda: funcs.position('a', 'b'), 'position($1 in $2)'),
-    (lambda: funcs.substring('a', 'b'), 'substring($1 from $2)'),
-    (lambda: funcs.substring('x', 2, 3), 'substring($1 from $2 for $3)'),
-    (lambda: funcs.extract(V('epoch').from_(V('foo.bar'))).cast('int'), 'extract(epoch from foo.bar)::int'),
-    (lambda: funcs.AND('a', 'b', 'c'), '$1 AND $2 AND $3'),
-    (lambda: funcs.AND('a', 'b', V('c') | V('d')), '$1 AND $2 AND (c OR d)'),
-    (lambda: funcs.OR('a', 'b', V('c') & V('d')), '$1 OR $2 OR c AND d'),
-    (lambda: funcs.comma_sep('a', 'b', V('c') | V('d')), '$1, $2, c OR d'),
-    (lambda: funcs.comma_sep(V('first_name'), 123), 'first_name, $1'),
-    (lambda: Func('foobar', V('x'), V('y')), 'foobar(x, y)'),
-    (lambda: Func('foobar', funcs.comma_sep('x', 'y')), 'foobar($1, $2)'),
-])
+@pytest.mark.parametrize(
+    'block,expected_query',
+    [
+        (lambda: SqlBlock(1) == 1, '$1 = $2'),
+        (lambda: SqlBlock(1) != 1, '$1 != $2'),
+        (lambda: SqlBlock(1) < 1, '$1 < $2'),
+        (lambda: SqlBlock(1) <= 1, '$1 <= $2'),
+        (lambda: SqlBlock(1) > 1, '$1 > $2'),
+        (lambda: SqlBlock(1) >= 1, '$1 >= $2'),
+        (lambda: SqlBlock(1) + 1, '$1 + $2'),
+        (lambda: SqlBlock(1) - 1, '$1 - $2'),
+        (lambda: SqlBlock(1) * 1, '$1 * $2'),
+        (lambda: SqlBlock(1) / 1, '$1 / $2'),
+        (lambda: SqlBlock(1) % 1, '$1 % $2'),
+        (lambda: SqlBlock(1) ** 1, '$1 ^ $2'),
+        (lambda: V('x').contains(V('y')), 'x @> y'),
+        (lambda: V('x').contained_by(V('y')), 'x <@ y'),
+        (lambda: V('x').like('y'), 'x LIKE $1'),
+        (lambda: V('x').cat('y'), 'x || $1'),
+        (lambda: V('x').comma(V('y')), 'x, y'),
+        (lambda: V('a').asc(), 'a ASC'),
+        (lambda: V('a').desc(), 'a DESC'),
+        (lambda: funcs.sqrt(4), '|/ $1'),
+        (lambda: funcs.abs(4), '@ $1'),
+        (lambda: funcs.factorial(4), '$1!'),
+        (lambda: funcs.count('*'), 'COUNT(*)'),
+        (lambda: funcs.count(V('*')), 'COUNT(*)'),
+        (lambda: funcs.count('*', 'foobar'), 'COUNT(*) AS foobar'),
+        (lambda: funcs.upper('a'), 'upper($1)'),
+        (lambda: funcs.lower('a'), 'lower($1)'),
+        (lambda: funcs.lower('a') > 4, 'lower($1) > $2'),
+        (lambda: funcs.length('a'), 'length($1)'),
+        (lambda: funcs.position('a', 'b'), 'position($1 in $2)'),
+        (lambda: funcs.substring('a', 'b'), 'substring($1 from $2)'),
+        (lambda: funcs.substring('x', 2, 3), 'substring($1 from $2 for $3)'),
+        (lambda: funcs.extract(V('epoch').from_(V('foo.bar'))).cast('int'), 'extract(epoch from foo.bar)::int'),
+        (lambda: funcs.AND('a', 'b', 'c'), '$1 AND $2 AND $3'),
+        (lambda: funcs.AND('a', 'b', V('c') | V('d')), '$1 AND $2 AND (c OR d)'),
+        (lambda: funcs.OR('a', 'b', V('c') & V('d')), '$1 OR $2 OR c AND d'),
+        (lambda: funcs.comma_sep('a', 'b', V('c') | V('d')), '$1, $2, c OR d'),
+        (lambda: funcs.comma_sep(V('first_name'), 123), 'first_name, $1'),
+        (lambda: Func('foobar', V('x'), V('y')), 'foobar(x, y)'),
+        (lambda: Func('foobar', funcs.comma_sep('x', 'y')), 'foobar($1, $2)'),
+    ],
+)
 def test_simple_blocks(block, expected_query):
     query, _ = render(':v', v=block())
     assert expected_query == query
 
 
-@pytest.mark.parametrize('block,s', [
-    (lambda: SqlBlock(1) == 2, '<SqlBlock(1 = 2)>'),
-    (lambda: SqlBlock('x') != 1, '<SqlBlock(x != 1)>'),
-    (lambda: SqlBlock('y') < 2, '<SqlBlock(y < 2)>'),
-])
+@pytest.mark.parametrize(
+    'block,s',
+    [
+        (lambda: SqlBlock(1) == 2, '<SqlBlock(1 = 2)>'),
+        (lambda: SqlBlock('x') != 1, '<SqlBlock(x != 1)>'),
+        (lambda: SqlBlock('y') < 2, '<SqlBlock(y < 2)>'),
+    ],
+)
 def test_block_repr(block, s):
     assert s == repr(block())
