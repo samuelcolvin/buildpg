@@ -32,6 +32,7 @@ class Operator(str, Enum):
     in_ = ' in '
     from_ = ' from '
     at_time_zone = ' AT TIME ZONE '
+    matches = ' @@ '
     for_ = ' for '
     factorial = '!'
     cast = '::'
@@ -69,6 +70,7 @@ PRECEDENCE = {
     Operator.in_: 35,
     Operator.from_: 35,
     Operator.at_time_zone: 35,
+    Operator.matches: 35,
     Operator.eq: 40,
     Operator.ne: 40,
     Operator.lt: 40,
@@ -179,6 +181,9 @@ class SqlBlock(Component):
 
     def at_time_zone(self, other):
         return self.operate(Operator.at_time_zone, other)
+
+    def matches(self, other):
+        return self.operate(Operator.matches, other)
 
     def for_(self, other):
         return self.operate(Operator.for_, other)

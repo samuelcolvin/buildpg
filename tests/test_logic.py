@@ -123,8 +123,13 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: Func('foobar', V('x'), V('y')), 'foobar(x, y)'),
         (lambda: Func('foobar', funcs.comma_sep('x', 'y')), 'foobar($1, $2)'),
         (lambda: Empty & (V('foo') == 4), ' AND foo = $1'),
-        (lambda: V('epoch').at_time_zone('MST'), "epoch AT TIME ZONE $1"),
-        (lambda: S('2032-02-16 19:38:40-08').at_time_zone('MST'), "$1 AT TIME ZONE $2"),
+        (lambda: V('epoch').at_time_zone('MST'), 'epoch AT TIME ZONE $1'),
+        (lambda: S('2032-02-16 19:38:40-08').at_time_zone('MST'), '$1 AT TIME ZONE $2'),
+        (lambda: V('foo').matches(V('bar')), 'foo @@ bar'),
+        (
+            lambda: funcs.to_tsvector('fat cats ate rats').matches(funcs.to_tsquery('cat & rat')),
+            'to_tsvector($1) @@ to_tsquery($2)',
+        ),
     ],
 )
 def test_simple_blocks(block, expected_query):

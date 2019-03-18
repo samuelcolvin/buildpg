@@ -78,3 +78,11 @@ def substring(string, pattern, for_=None):
     if for_:
         a = a.for_(for_)
     return logic.Func('substring', a)
+
+
+def to_tsvector(arg1, document=None):
+    return logic.Func('to_tsvector', arg1) if document is None else logic.Func('to_tsvector', arg1, document)
+
+
+def to_tsquery(arg1, text=None):
+    return logic.Func('to_tsquery', arg1) if text is None else logic.Func('to_tsquery', arg1, text)
