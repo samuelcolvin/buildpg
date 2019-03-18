@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import Empty, Func, S, SqlBlock, V, Var, funcs, render, select_fields, RawDangerous
+from buildpg import Empty, Func, RawDangerous, S, SqlBlock, V, Var, funcs, render, select_fields
 
 args = 'template', 'var', 'expected_query', 'expected_params'
 TESTS = [
@@ -134,6 +134,9 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: funcs.now(), 'now()'),
         (lambda: select_fields('foo', 'bar'), 'foo, bar'),
         (lambda: select_fields('foo', S(RawDangerous("'raw text'"))), "foo, 'raw text'"),
+        (lambda: funcs.not_(V('a').in_([1, 2])), 'not(a in $1)'),
+        (lambda: V('a').in_([1, 2]).not_(), 'not(a in $1)'),
+        (lambda: funcs.not_(V('a') == funcs.any([1, 2])), 'not(a = any($1))'),
     ],
 )
 def test_simple_blocks(block, expected_query):

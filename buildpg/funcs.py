@@ -29,6 +29,14 @@ def count(expr, as_=None):
     return f
 
 
+def not_(arg):
+    return logic.Func('not', arg)
+
+
+def any(arg):
+    return logic.Func('any', arg)
+
+
 def now():
     return logic.SqlBlock(logic.RawDangerous('now()'))
 

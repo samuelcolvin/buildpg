@@ -203,6 +203,9 @@ class SqlBlock(Component):
     def on(self, other):
         return self.operate(Operator.on, other)
 
+    def not_(self):
+        return Func('not', self)
+
     def as_(self, other):
         return self.operate(Operator.as_, as_var(other))
 
