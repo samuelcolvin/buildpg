@@ -15,10 +15,16 @@ class Renderer:
 
     def __call__(self, query_template, **ctx):
         params = []
+        existing_params = {}
 
-        def add_param(p):
-            params.append(p)
-            return f'${len(params)}'
+        def add_param(p, *var_parts):
+            try:
+                index = existing_params[var_parts]
+            except KeyError:
+                params.append(p)
+                index = len(params)
+                existing_params[var_parts] = index
+            return f'${index}'
 
         repl = partial(self.replace, ctx=ctx, add_param=add_param)
         return self.regex.sub(repl, query_template), params
@@ -43,23 +49,23 @@ class Renderer:
                 render_gen = v.render
 
             if render_gen:
-                return ''.join(self.add_chunk(render_gen(), add_param))
+                return ''.join(self.add_chunk(render_gen(), add_param, var_name))
             else:
-                return add_param(v)
+                return add_param(v, var_name)
         except ComponentError as exc:
             raise BuildError(f'"{var_name}": {exc}') from exc
         except Exception as exc:
             raise BuildError(f'"{var_name}": error building content, {exc.__class__.__name__}: {exc}') from exc
 
     @classmethod
-    def add_chunk(cls, gen, add_param):
-        for chunk in gen:
+    def add_chunk(cls, gen, add_param, *var_parts):
+        for i, chunk in enumerate(gen):
             if isinstance(chunk, RawDangerous):
                 yield chunk
             elif isinstance(chunk, Component):
-                yield from cls.add_chunk(chunk.render(), add_param)
+                yield from cls.add_chunk(chunk.render(), add_param, *var_parts, i)
             else:
-                yield add_param(chunk)
+                yield add_param(chunk, *var_parts, i)
 
     def get_params(self, component: Component):
         return list(self._get_params(component.render()))

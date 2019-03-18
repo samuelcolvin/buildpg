@@ -41,6 +41,36 @@ TESTS = [
         'expected_query': 'numeric: :1000 $1',
         'expected_params': [2],
     },
+    {
+        'template': 'select * from a where x=:a and y=:b',
+        'ctx': lambda: {'a': 123, 'b': 456},
+        'expected_query': 'select * from a where x=$1 and y=$2',
+        'expected_params': [123, 456],
+    },
+    {
+        'template': 'select * from a where x=:a and y=:b',
+        'ctx': lambda: {'a': 123, 'b': 123},
+        'expected_query': 'select * from a where x=$1 and y=$2',
+        'expected_params': [123, 123],
+    },
+    {
+        'template': 'select * from a where x=:a and y=:a',
+        'ctx': lambda: {'a': 123, 'b': 123},
+        'expected_query': 'select * from a where x=$1 and y=$1',
+        'expected_params': [123],
+    },
+    {
+        'template': 'values: :a, again: :a',
+        'ctx': lambda: dict(a=Values(1, 2, 3)),
+        'expected_query': 'values: ($1, $2, $3), again: ($1, $2, $3)',
+        'expected_params': [1, 2, 3],
+    },
+    {
+        'template': 'values: :a, different: :b',
+        'ctx': lambda: dict(a=Values(1, 2, 3), b=Values(1, 2, 3)),
+        'expected_query': 'values: ($1, $2, $3), different: ($4, $5, $6)',
+        'expected_params': [1, 2, 3, 1, 2, 3],
+    },
 ]
 
 
