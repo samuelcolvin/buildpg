@@ -68,7 +68,7 @@ def test_component_repr(component, s):
 
 
 def test_different_regex():
-    customer_render = Renderer('{{ ?([\w.]+) ?}}', '.')
+    customer_render = Renderer(r'{{ ?([\w.]+) ?}}', '.')
     q, params = customer_render('testing: {{ a}} {{c }} {{b}}', a=1, b=2, c=3, x=Values(foo=1, bar=2))
     assert q == 'testing: $1 $2 $3'
     assert params == [1, 3, 2]

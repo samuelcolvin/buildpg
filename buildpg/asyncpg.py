@@ -31,12 +31,12 @@ class BuildPgConnection(Connection):  # noqa
                 print_ = print
             print_(f'params: {args} query:\n{self.format_sql(sql)}')
 
-    async def execute_b(self, query_template, _timeout: float=None, print_=False, **kwargs):
+    async def execute_b(self, query_template, _timeout: float = None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self.print_query(print_, query, args)
         return await self.execute(query, *args, timeout=_timeout)
 
-    async def executemany_b(self, query_template, args, timeout: float=None, print_=False):
+    async def executemany_b(self, query_template, args, timeout: float = None, print_=False):
         query, _ = render(query_template, values=args[0])
         args_ = [render.get_params(a) for a in args]
         self.print_query(print_, query, args)
@@ -47,17 +47,17 @@ class BuildPgConnection(Connection):  # noqa
         self.print_query(print_, query, args)
         return self.cursor(query, *args, timeout=_timeout, prefetch=_prefetch)
 
-    async def fetch_b(self, query_template, _timeout: float=None, print_=False, **kwargs):
+    async def fetch_b(self, query_template, _timeout: float = None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self.print_query(print_, query, args)
         return await self.fetch(query, *args, timeout=_timeout)
 
-    async def fetchval_b(self, query_template, _timeout: float=None, _column=0, print_=False, **kwargs):
+    async def fetchval_b(self, query_template, _timeout: float = None, _column=0, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self.print_query(print_, query, args)
         return await self.fetchval(query, *args, timeout=_timeout, column=_column)
 
-    async def fetchrow_b(self, query_template, _timeout: float=None, print_=False, **kwargs):
+    async def fetchrow_b(self, query_template, _timeout: float = None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self.print_query(print_, query, args)
         return await self.fetchrow(query, *args, timeout=_timeout)

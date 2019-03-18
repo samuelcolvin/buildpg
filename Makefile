@@ -1,21 +1,24 @@
 .DEFAULT_GOAL := all
+isort = isort -rc buildpg tests
+black = black -S -l 120 --py36 buildpg tests
 
 .PHONY: install
 install:
 	pip install -U setuptools pip
 	pip install -U -r tests/requirements.txt
-	pip install -U .
+	pip install -e .
 
-.PHONY: isort
-isort:
-	isort -rc -w 120 buildpg
-	isort -rc -w 120 tests
+.PHONY: format
+format:
+	$(isort)
+	#$(black)
 
 .PHONY: lint
 lint:
 	python setup.py check -rms
 	flake8 buildpg/ tests/
-	pytest buildpg -p no:sugar -q
+	$(isort) --check-only
+	#$(black) --check arq
 
 .PHONY: test
 test:

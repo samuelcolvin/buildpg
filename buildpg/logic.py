@@ -283,7 +283,7 @@ class Not(Func):
 
 
 class Var(SqlBlock):
-    def __init__(self, v1, *, op: Operator=None, v2=None):
+    def __init__(self, v1, *, op: Operator = None, v2=None):
         super().__init__(VarLiteral(v1), op=op, v2=v2)
 
 
