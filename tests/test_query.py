@@ -121,3 +121,10 @@ async def test_log_callable(conn):
     assert a == 25
 
     assert 'SELECT' in logged_message
+
+
+async def test_pool_fetch():
+    async with asyncpg.create_pool_b(f'postgresql://postgres@localhost/{DB_NAME}') as pool:
+        v = await pool.fetchval_b('SELECT :v FROM users ORDER BY id LIMIT 1', v=funcs.right(V('first_name'), 3))
+
+    assert v == 'red'

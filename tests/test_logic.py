@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import Func, Empty, S, SqlBlock, V, Var, funcs, render
+from buildpg import Empty, Func, S, SqlBlock, V, Var, funcs, render
 
 args = 'template', 'var', 'expected_query', 'expected_params'
 TESTS = [

@@ -1,6 +1,7 @@
 from textwrap import indent
 
 from asyncpg import *  # noqa
+from asyncpg.pool import Pool
 
 from .main import render
 
@@ -13,7 +14,7 @@ except ImportError:  # pragma: no cover
     sqlparse = None
 
 
-class BuildPgConnection(Connection):  # noqa
+class _BuildPgMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -63,11 +64,51 @@ class BuildPgConnection(Connection):  # noqa
         return await self.fetchrow(query, *args, timeout=_timeout)
 
 
+class BuildPgConnection(_BuildPgMixin, Connection):  # noqa
+    pass
+
+
 async def connect_b(*args, **kwargs):
     kwargs.setdefault('connection_class', BuildPgConnection)
     return await connect(*args, **kwargs)  # noqa
 
 
-def create_pool_b(*args, **kwargs):
-    kwargs.setdefault('connection_class', BuildPgConnection)
-    return create_pool(*args, **kwargs)  # noqa
+class BuildPgPool(_BuildPgMixin, Pool):
+    pass
+
+
+def create_pool_b(
+    dsn=None,
+    *,
+    min_size=10,
+    max_size=10,
+    max_queries=50000,
+    max_inactive_connection_lifetime=300.0,
+    setup=None,
+    init=None,
+    loop=None,
+    connection_class=BuildPgConnection,
+    **connect_kwargs,
+):
+    """
+    Create a connection pool.
+
+    Can be used either with an ``async with`` block:
+
+    Identical to ``asyncpg.create_pool`` except that both the pool and connection have the *_b varients of
+    ``execute``, ``fetch``, ``fetchval``, ``fetchrow`` etc
+
+    Arguments are exactly the same as ``asyncpg.create_pool``.
+    """
+    return BuildPgPool(
+        dsn,
+        connection_class=connection_class,
+        min_size=min_size,
+        max_size=max_size,
+        max_queries=max_queries,
+        loop=loop,
+        setup=setup,
+        init=init,
+        max_inactive_connection_lifetime=max_inactive_connection_lifetime,
+        **connect_kwargs,
+    )
