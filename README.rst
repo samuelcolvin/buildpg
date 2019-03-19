@@ -5,13 +5,9 @@ buildpg
 
 Query building for the postgresql prepared statements and asyncpg.
 
-.. |BuildStatus| image:: https://travis-ci.com/samuelcolvin/buildpg.svg?branch=master
-   :target: https://travis-ci.com/samuelcolvin/buildpg
-.. |Coverage| image:: https://codecov.io/gh/samuelcolvin/buildpg/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/samuelcolvin/buildpg/
-.. |pypi| image:: https://img.shields.io/pypi/v/buildpg.svg
-   :target: https://pypi.org/project/buildpg/
-
+Lots of more powerful features, including full clause construction, multiple values, logic functions,
+query pretty-printing and different variable substitution - below is just a very quick summary.
+Please check the code and tests for examples.
 
 Building Queries
 ................
@@ -90,3 +86,10 @@ Both the pool and connections have ``*_b`` variants of all common query methods:
 - ``fetchval_b``
 - ``fetchrow_b``
 - ``cursor_b``
+
+.. |BuildStatus| image:: https://travis-ci.com/samuelcolvin/buildpg.svg?branch=master
+   :target: https://travis-ci.com/samuelcolvin/buildpg
+.. |Coverage| image:: https://codecov.io/gh/samuelcolvin/buildpg/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/samuelcolvin/buildpg/
+.. |pypi| image:: https://img.shields.io/pypi/v/buildpg.svg
+   :target: https://pypi.org/project/buildpg/
