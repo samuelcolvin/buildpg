@@ -110,6 +110,14 @@ async def test_log(conn, capsys):
     assert 'SELECT' in capsys.readouterr().out
 
 
+async def test_print(conn, capsys):
+    query, params = conn.print_b('SELECT :a', a=funcs.cast(5, 'int') * 5)
+    assert query == 'SELECT $1::int * $2'
+    assert params == [5, 5]
+
+    assert 'SELECT' in capsys.readouterr().out
+
+
 async def test_log_callable(conn):
     logged_message = None
 
