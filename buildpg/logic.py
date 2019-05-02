@@ -1,4 +1,5 @@
 from enum import Enum, unique
+from typing import Union
 
 from .components import Component, RawDangerous, VarLiteral, check_word, yield_sep
 
@@ -27,6 +28,7 @@ class Operator(str, Enum):
     pow = ' ^ '
     contains = ' @> '
     contained_by = ' <@ '
+    overlap = ' && '
     like = ' LIKE '
     cat = ' || '
     in_ = ' in '
@@ -65,6 +67,7 @@ PRECEDENCE = {
     Operator.sub: 50,
     Operator.contains: 35,
     Operator.contained_by: 35,
+    Operator.overlap: 35,
     Operator.like: 35,
     Operator.cat: 35,
     Operator.in_: 35,
@@ -95,7 +98,7 @@ class SqlBlock(Component):
         self.op = op
         self.v2 = v2
 
-    def operate(self, op: Operator, v2=None):
+    def operate(self, op: Union[RawDangerous, Operator], v2=None):
         if self.op:
             # op already completed
             return SqlBlock(self, op=op, v2=v2)
@@ -167,6 +170,9 @@ class SqlBlock(Component):
     def contained_by(self, other):
         return self.operate(Operator.contained_by, other)
 
+    def overlap(self, other):
+        return self.operate(Operator.overlap, other)
+
     def like(self, other):
         return self.operate(Operator.like, other)
 
@@ -226,7 +232,10 @@ class SqlBlock(Component):
     def render(self):
         yield from self._bracket(self.v1)
         if self.op:
-            yield RawDangerous(self.op.value)
+            if isinstance(self.op, RawDangerous):
+                yield self.op
+            else:
+                yield RawDangerous(self.op.value)
             if self.v2:
                 yield from self._bracket(self.v2)
 
