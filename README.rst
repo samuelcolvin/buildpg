@@ -117,7 +117,7 @@ Python operator/function   SQL operator
 ``**``                    ``^``
 ``-``                     ``-``
 ``~``                     ``not(...)``
-``sqrt``                  ``|/;``
+``sqrt``                  ``|/``
 ``abs``                   ``@``
 ``contains``              ``@>``
 ``contained_by``          ``<@``
@@ -128,12 +128,14 @@ Python operator/function   SQL operator
 ``from_``                 ``from``
 ``at_time_zone``          ``AT TIME ZONE``
 ``matches``               ``@@``
+``is_``                   ``is``
+``is_not``                ``is not``
 ``for_``                  ``for``
 ``factorial``             ``!``
 ``cast``                  ``::``
-``asc``                   `` ASC``
+``asc``                   ``ASC``
 ``desc``                  ``DESC``
-``comma``                 ``, ;``
+``comma``                 ``,``
 ``on``                    ``ON``
 ``as_``                   ``AS``
 ========================  ==================
@@ -156,6 +158,8 @@ Usage:
    #> sql="not(foobar)" params=[]
    show(S(625).sqrt())
    #> sql="|/ $1" params=[625]
+   show(V('foo').is_not('true'))
+   #> sql="foo is not true" params=[]
 
 
 Functions
@@ -167,7 +171,7 @@ Python function                              SQL function
 ``AND(*args)``                               ``<arg1> and <arg2> ...``
 ``OR(*args)``                                ``<arg1> or <arg2> ...``
 ``NOT(arg)``                                 ``not(<arg>)``
-``comma_sep(*args)``                         ``<arg1>, <arg2>, ...;``
+``comma_sep(*args)``                         ``<arg1>, <arg2>, ...``
 ``count(expr)``                              ``count(expr)``
 ``any(arg)``                                 ``any(<arg1>)``
 ``now()``                                    ``now()``
@@ -178,9 +182,9 @@ Python function                              SQL function
 ``left(string, n)``                          ``left(<string>, <n>)``
 ``right(string, n)``                         ``right(<string>, <n>)``
 ``extract(expr)``                            ``extract(<expr>)``
-``sqrt(n)``                                  ``|/ <n>``
-``abs(n)``                                   ``@ <n>``
-``factorial(n)``                             ``!<n>;``
+``sqrt(n)``                                  ``|/<n>``
+``abs(n)``                                   ``@<n>``
+``factorial(n)``                             ``!<n>``
 ``position(substring, string)``              ``position(<substring> in <st``...
 ``substring(string, pattern, escape=None)``  ``substring(<string> from <pa``...
 ``to_tsvector(arg1, document=None)``         ``to_tsvector(<arg1>)``

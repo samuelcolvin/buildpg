@@ -131,6 +131,8 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: V('epoch').at_time_zone('MST'), 'epoch AT TIME ZONE $1'),
         (lambda: S('2032-02-16 19:38:40-08').at_time_zone('MST'), '$1 AT TIME ZONE $2'),
         (lambda: V('foo').matches(V('bar')), 'foo @@ bar'),
+        (lambda: V('foo').is_(V('bar')), 'foo is bar'),
+        (lambda: V('foo').is_not(V('bar')), 'foo is not bar'),
         (
             lambda: funcs.to_tsvector('fat cats ate rats').matches(funcs.to_tsquery('cat & rat')),
             'to_tsvector($1) @@ to_tsquery($2)',
