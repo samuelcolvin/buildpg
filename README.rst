@@ -93,3 +93,111 @@ Both the pool and connections have ``*_b`` variants of all common query methods:
    :target: https://codecov.io/gh/samuelcolvin/buildpg/
 .. |pypi| image:: https://img.shields.io/pypi/v/buildpg.svg
    :target: https://pypi.org/project/buildpg/
+
+
+Operators
+.........
+
+========================  ==================
+Python operator/function   SQL operator
+========================  ==================
+``&``                     ``AND``
+``|``                     ``OR``
+``=``                     ``=``
+``!=``                    ``!=``
+``<``                     ``<``
+``<=``                    ``<=``
+``>``                     ``>``
+``>=``                    ``>=``
+``+``                     ``+``
+``-``                     ``-``
+``*``                     ``*``
+``/``                     ``/``
+``%``                     ``%``
+``**``                    ``^``
+``-``                     ``-``
+``~``                     ``not(...)``
+``sqrt``                  ``|/;``
+``abs``                   ``@``
+``contains``              ``@>``
+``contained_by``          ``<@``
+``overlap``               ``&&``
+``like``                  ``LIKE``
+``cat``                   ``||``
+``in_``                   ``in``
+``from_``                 ``from``
+``at_time_zone``          ``AT TIME ZONE``
+``matches``               ``@@``
+``for_``                  ``for``
+``factorial``             ``!``
+``cast``                  ``::``
+``asc``                   `` ASC``
+``desc``                  ``DESC``
+``comma``                 ``, ;``
+``on``                    ``ON``
+``as_``                   ``AS``
+========================  ==================
+
+Usage:
+
+.. code-block:: python
+
+   from buildpg import V, S, render
+
+   def show(component):
+       sql, params = render(':c', c=component)
+       print(f'sql="{sql}" params={params}')
+
+   show(V('foobar').contains([1, 2, 3]))
+   #> sql="foobar @> $1" params=[[1, 2, 3]]
+   show(V('foobar') == 4)
+   #> sql="foobar = $1" params=[4]
+   show(~V('foobar'))
+   #> sql="not(foobar)" params=[]
+   show(S(625).sqrt())
+   #> sql="|/ $1" params=[625]
+
+
+Functions
+.........
+
+=========================================  =====================
+Python function                            SQL function
+=========================================  =====================
+``AND(*args)``                             ``arg1 and arg2 ...``
+``OR(*args)``                              ``arg1 or arg2 ...``
+``NOT(arg)``                               ``not(...)``
+``comma_sep(*args)``                       ``arg1, arg2, ...;``
+``count(expr, as_=None)``                  ``count(...)``
+``any(arg)``                               ``any(...)``
+``now()``                                  ``now(...)``
+``cast(v, cast_type)``                     ``cast(...)``
+``upper(string)``                          ``upper(...)``
+``lower(string)``                          ``lower(...)``
+``length(string)``                         ``length(...)``
+``left(string, n)``                        ``left(...)``
+``right(string, n)``                       ``right(...)``
+``extract(expr)``                          ``extract(...)``
+``sqrt(n)``                                ``|/ n``
+``abs(n)``                                 ``@ n``
+``factorial(n)``                           ``!n``
+``position(substring, string)``            ``position(...)``
+``substring(string, pattern, for_=None)``  ``substring(...)``
+``to_tsvector(arg1, document=None)``       ``to_tsvector(...)``
+``to_tsquery(arg1, text=None)``            ``to_tsquery(...)``
+=========================================  =====================
+
+Usage:
+
+.. code-block:: python
+
+   from buildpg import V, render, funcs
+
+   def show(component):
+      sql, params = render(':c', c=component)
+      print(f'sql="{sql}" params={params}')
+
+   show(funcs.AND(V('x') == 4, V('y') > 6))
+   #> sql="x = $1 AND y > $2" params=[4, 6]
+   show(funcs.position('foo', 'this has foo in it'))
+   #> sql="position($1 in $2)" params=['foo', 'this has foo in it']

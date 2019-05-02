@@ -209,9 +209,6 @@ class SqlBlock(Component):
     def on(self, other):
         return self.operate(Operator.on, other)
 
-    def not_(self):
-        return Func('not', self)
-
     def as_(self, other):
         return self.operate(Operator.as_, as_var(other))
 
@@ -283,7 +280,7 @@ class LeftOp(Func):
 
 class Not(Func):
     def __init__(self, v):
-        super().__init__('NOT', v)
+        super().__init__('not', v)
 
     def __invert__(self):
         return self.v1[0]

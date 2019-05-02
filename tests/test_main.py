@@ -83,8 +83,7 @@ def test_render(template, ctx, expected_query, expected_params):
 
 
 @pytest.mark.parametrize(
-    'component,s',
-    [(lambda: MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<MultipleValues((3, 2, 1), (1, 2, 3))>')],
+    'component,s', [(lambda: MultipleValues(Values(3, 2, 1), Values(1, 2, 3)), '<SQL: "(3, 2, 1), (1, 2, 3)">')]
 )
 def test_component_repr(component, s):
     assert s == repr(component())

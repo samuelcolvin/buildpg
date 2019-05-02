@@ -29,7 +29,7 @@ def count(expr, as_=None):
     return f
 
 
-def not_(arg):
+def NOT(arg):
     return logic.Func('not', arg)
 
 

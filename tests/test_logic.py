@@ -10,7 +10,7 @@ TESTS = [
     {
         'template': 'inv: :var',
         'var': lambda: ~(S(1) % 2),
-        'expected_query': 'inv: NOT($1 % $2)',
+        'expected_query': 'inv: not($1 % $2)',
         'expected_params': [1, 2],
     },
     {
@@ -42,7 +42,7 @@ TESTS = [
     {
         'template': 'inv chain: :var',
         'var': lambda: ~(V('x') == 2) | V('y'),
-        'expected_query': 'inv chain: NOT(x = $1) OR y',
+        'expected_query': 'inv chain: not(x = $1) OR y',
         'expected_params': [2],
     },
     {
@@ -102,6 +102,8 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: V('x').comma(V('y')), 'x, y'),
         (lambda: V('a').asc(), 'a ASC'),
         (lambda: V('a').desc(), 'a DESC'),
+        (lambda: ~V('a'), 'not(a)'),
+        (lambda: -V('a'), '-a'),
         (lambda: V('x').operate(RawDangerous(' foobar '), V('y')), 'x foobar y'),
         (lambda: funcs.sqrt(4), '|/ $1'),
         (lambda: funcs.abs(4), '@ $1'),
@@ -136,9 +138,9 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: funcs.now(), 'now()'),
         (lambda: select_fields('foo', 'bar'), 'foo, bar'),
         (lambda: select_fields('foo', S(RawDangerous("'raw text'"))), "foo, 'raw text'"),
-        (lambda: funcs.not_(V('a').in_([1, 2])), 'not(a in $1)'),
-        (lambda: V('a').in_([1, 2]).not_(), 'not(a in $1)'),
-        (lambda: funcs.not_(V('a') == funcs.any([1, 2])), 'not(a = any($1))'),
+        (lambda: funcs.NOT(V('a').in_([1, 2])), 'not(a in $1)'),
+        (lambda: ~V('a').in_([1, 2]), 'not(a in $1)'),
+        (lambda: funcs.NOT(V('a') == funcs.any([1, 2])), 'not(a = any($1))'),
     ],
 )
 def test_simple_blocks(block, expected_query):
@@ -149,9 +151,9 @@ def test_simple_blocks(block, expected_query):
 @pytest.mark.parametrize(
     'block,s',
     [
-        (lambda: SqlBlock(1) == 2, '<SqlBlock(1 = 2)>'),
-        (lambda: SqlBlock('x') != 1, '<SqlBlock(x != 1)>'),
-        (lambda: SqlBlock('y') < 2, '<SqlBlock(y < 2)>'),
+        (lambda: SqlBlock(1) == 2, '<SQL: "1 = 2">'),
+        (lambda: SqlBlock('x') != 1, '<SQL: "x != 1">'),
+        (lambda: SqlBlock('y') < 2, '<SQL: "y < 2">'),
     ],
 )
 def test_block_repr(block, s):

@@ -78,7 +78,7 @@ class Component:
                 yield str(chunk)
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}({self})>'
+        return f'<SQL: "{self}">'
 
 
 class Values(Component):
