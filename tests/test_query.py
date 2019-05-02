@@ -131,6 +131,21 @@ async def test_log_callable(conn):
     assert 'SELECT' in logged_message
 
 
+async def test_coloured_callable(conn):
+    logged_message = None
+
+    def foobar(arg):
+        nonlocal logged_message
+        logged_message = arg
+
+    foobar.formatted = True
+    a = await conn.fetchval_b('SELECT :a', print_=foobar, __timeout=12, a=funcs.cast(5, 'int') * 5)
+    assert a == 25
+
+    assert 'SELECT' in logged_message
+    assert '\x1b[' in logged_message
+
+
 async def test_pool_fetch():
     async with asyncpg.create_pool_b(f'postgresql://postgres@localhost/{DB_NAME}') as pool:
         v = await pool.fetchval_b('SELECT :v FROM users ORDER BY id LIMIT 1', v=funcs.right(V('first_name'), 3))

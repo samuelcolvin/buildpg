@@ -1,3 +1,4 @@
+import sys
 from textwrap import indent
 
 from asyncpg import *  # noqa
@@ -19,8 +20,8 @@ class _BuildPgMixin:
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def _format_sql(sql):
-        if sqlparse is not None:
+    def _format_sql(sql, formatted):
+        if formatted and sqlparse is not None:
             sql = indent(sqlparse.format(str(sql), reindent=True), ' ' * 4)
             return highlight(sql, PlPgsqlLexer(), Terminal256Formatter(style='monokai')).strip('\n')
         else:
@@ -30,7 +31,10 @@ class _BuildPgMixin:
         if print_:
             if not callable(print_):
                 print_ = print
-            print_(f'params: {args} query:\n{self._format_sql(sql)}')
+                formatted = sys.stdout.isatty()
+            else:
+                formatted = getattr(print_, 'formatted', False)
+            print_(f'params: {args} query:\n{self._format_sql(sql, formatted)}')
 
     def print_b(self, query_template, *, print_=True, **kwargs):
         query, args = render(query_template, **kwargs)
