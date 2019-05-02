@@ -161,31 +161,31 @@ Usage:
 Functions
 .........
 
-=========================================  =====================
-Python function                            SQL function
-=========================================  =====================
-``AND(*args)``                             ``arg1 and arg2 ...``
-``OR(*args)``                              ``arg1 or arg2 ...``
-``NOT(arg)``                               ``not(...)``
-``comma_sep(*args)``                       ``arg1, arg2, ...;``
-``count(expr, as_=None)``                  ``count(...)``
-``any(arg)``                               ``any(...)``
-``now()``                                  ``now(...)``
-``cast(v, cast_type)``                     ``cast(...)``
-``upper(string)``                          ``upper(...)``
-``lower(string)``                          ``lower(...)``
-``length(string)``                         ``length(...)``
-``left(string, n)``                        ``left(...)``
-``right(string, n)``                       ``right(...)``
-``extract(expr)``                          ``extract(...)``
-``sqrt(n)``                                ``|/ n``
-``abs(n)``                                 ``@ n``
-``factorial(n)``                           ``!n``
-``position(substring, string)``            ``position(...)``
-``substring(string, pattern, for_=None)``  ``substring(...)``
-``to_tsvector(arg1, document=None)``       ``to_tsvector(...)``
-``to_tsquery(arg1, text=None)``            ``to_tsquery(...)``
-=========================================  =====================
+===========================================  =============
+Python function                              SQL function
+===========================================  =============
+``AND(*args)``                               ``<arg1> and <arg2> ...``
+``OR(*args)``                                ``<arg1> or <arg2> ...``
+``NOT(arg)``                                 ``not(<arg>)``
+``comma_sep(*args)``                         ``<arg1>, <arg2>, ...;``
+``count(expr)``                              ``count(expr)``
+``any(arg)``                                 ``any(<arg1>)``
+``now()``                                    ``now()``
+``cast(v, cast_type)``                       ``<v>::<cast_type>``
+``upper(string)``                            ``upper(<string>)``
+``lower(string)``                            ``lower(<string>)``
+``length(string)``                           ``length(<string>)``
+``left(string, n)``                          ``left(<string>, <n>)``
+``right(string, n)``                         ``right(<string>, <n>)``
+``extract(expr)``                            ``extract(<expr>)``
+``sqrt(n)``                                  ``|/ <n>``
+``abs(n)``                                   ``@ <n>``
+``factorial(n)``                             ``!<n>;``
+``position(substring, string)``              ``position(<substring> in <st``...
+``substring(string, pattern, escape=None)``  ``substring(<string> from <pa``...
+``to_tsvector(arg1, document=None)``         ``to_tsvector(<arg1>)``
+``to_tsquery(arg1, text=None)``              ``to_tsquery(<arg1>)``
+===========================================  =============
 
 Usage:
 

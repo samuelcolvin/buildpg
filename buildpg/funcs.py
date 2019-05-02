@@ -22,11 +22,8 @@ def comma_sep(arg, *args):
     return v
 
 
-def count(expr, as_=None):
-    f = logic.Func('COUNT', logic.as_var(expr))
-    if as_:
-        f = f.as_(as_)
-    return f
+def count(expr):
+    return logic.Func('COUNT', logic.as_var(expr))
 
 
 def NOT(arg):
@@ -85,10 +82,10 @@ def position(substring, string):
     return logic.Func('position', logic.SqlBlock(substring).in_(string))
 
 
-def substring(string, pattern, for_=None):
+def substring(string, pattern, escape=None):
     a = logic.SqlBlock(string).from_(pattern)
-    if for_:
-        a = a.for_(for_)
+    if escape:
+        a = a.for_(escape)
     return logic.Func('substring', a)
 
 

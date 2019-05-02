@@ -110,7 +110,7 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: funcs.factorial(4), '$1!'),
         (lambda: funcs.count('*'), 'COUNT(*)'),
         (lambda: funcs.count(V('*')), 'COUNT(*)'),
-        (lambda: funcs.count('*', 'foobar'), 'COUNT(*) AS foobar'),
+        (lambda: funcs.count('*').as_('foobar'), 'COUNT(*) AS foobar'),
         (lambda: funcs.upper('a'), 'upper($1)'),
         (lambda: funcs.lower('a'), 'lower($1)'),
         (lambda: funcs.lower('a') > 4, 'lower($1) > $2'),
