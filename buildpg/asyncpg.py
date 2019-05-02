@@ -32,38 +32,38 @@ class _BuildPgMixin:
                 print_ = print
             print_(f'params: {args} query:\n{self._format_sql(sql)}')
 
-    def print_b(self, query_template, print_=True, **kwargs):
+    def print_b(self, query_template, *, print_=True, **kwargs):
         query, args = render(query_template, **kwargs)
         self._print_query(print_, query, args)
         return query, args
 
-    async def execute_b(self, query_template, _timeout: float = None, print_=False, **kwargs):
+    async def execute_b(self, query_template, *, _timeout: float = None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self._print_query(print_, query, args)
         return await self.execute(query, *args, timeout=_timeout)
 
-    async def executemany_b(self, query_template, args, timeout: float = None, print_=False):
+    async def executemany_b(self, query_template, args, *, timeout: float = None, print_=False):
         query, _ = render(query_template, values=args[0])
         args_ = [render.get_params(a) for a in args]
         self._print_query(print_, query, args)
         return await self.executemany(query, args_, timeout=timeout)
 
-    def cursor_b(self, query_template, _timeout: float = None, _prefetch=None, print_=False, **kwargs):
+    def cursor_b(self, query_template, *, _timeout: float = None, _prefetch=None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self._print_query(print_, query, args)
         return self.cursor(query, *args, timeout=_timeout, prefetch=_prefetch)
 
-    async def fetch_b(self, query_template, _timeout: float = None, print_=False, **kwargs):
+    async def fetch_b(self, query_template, *, _timeout: float = None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self._print_query(print_, query, args)
         return await self.fetch(query, *args, timeout=_timeout)
 
-    async def fetchval_b(self, query_template, _timeout: float = None, _column=0, print_=False, **kwargs):
+    async def fetchval_b(self, query_template, *, _timeout: float = None, _column=0, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self._print_query(print_, query, args)
         return await self.fetchval(query, *args, timeout=_timeout, column=_column)
 
-    async def fetchrow_b(self, query_template, _timeout: float = None, print_=False, **kwargs):
+    async def fetchrow_b(self, query_template, *, _timeout: float = None, print_=False, **kwargs):
         query, args = render(query_template, **kwargs)
         self._print_query(print_, query, args)
         return await self.fetchrow(query, *args, timeout=_timeout)
