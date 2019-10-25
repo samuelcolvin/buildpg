@@ -98,6 +98,7 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: V('x').overlap(V('y')), 'x && y'),
         (lambda: V('x').contained_by(V('y')), 'x <@ y'),
         (lambda: V('x').like('y'), 'x LIKE $1'),
+        (lambda: V('x').ilike('y'), 'x ILIKE $1'),
         (lambda: V('x').cat('y'), 'x || $1'),
         (lambda: V('x').comma(V('y')), 'x, y'),
         (lambda: V('a').asc(), 'a ASC'),

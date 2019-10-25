@@ -123,6 +123,7 @@ Python operator/function   SQL operator
 ``contained_by``          ``<@``
 ``overlap``               ``&&``
 ``like``                  ``LIKE``
+``ilike``                 ``ILIKE``
 ``cat``                   ``||``
 ``in_``                   ``in``
 ``from_``                 ``from``
