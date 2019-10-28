@@ -30,6 +30,7 @@ class Operator(str, Enum):
     contained_by = ' <@ '
     overlap = ' && '
     like = ' LIKE '
+    ilike = ' ILIKE '
     cat = ' || '
     in_ = ' in '
     from_ = ' from '
@@ -71,6 +72,7 @@ PRECEDENCE = {
     Operator.contained_by: 35,
     Operator.overlap: 35,
     Operator.like: 35,
+    Operator.ilike: 35,
     Operator.cat: 35,
     Operator.in_: 35,
     Operator.from_: 35,
@@ -179,6 +181,9 @@ class SqlBlock(Component):
 
     def like(self, other):
         return self.operate(Operator.like, other)
+
+    def ilike(self, other):
+        return self.operate(Operator.ilike, other)
 
     def cat(self, other):
         return self.operate(Operator.cat, other)
