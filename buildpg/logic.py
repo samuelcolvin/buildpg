@@ -248,7 +248,7 @@ class SqlBlock(Component):
                 yield self.op
             else:
                 yield RawDangerous(self.op.value)
-            if self.v2:
+            if self.v2 is not None:
                 yield from self._bracket(self.v2)
 
 
