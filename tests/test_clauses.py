@@ -19,6 +19,7 @@ from buildpg import V, clauses, render
         (lambda: clauses.OrderBy('apple', V('pear').desc()), 'ORDER BY apple, pear DESC', []),
         (lambda: clauses.Limit(20), 'LIMIT $1', [20]),
         (lambda: clauses.Offset(20), 'OFFSET $1', [20]),
+        (lambda: clauses.Join('foobar', V('x.value') == 0), 'JOIN foobar ON x.value = $1', [0]),
     ],
 )
 def test_simple_blocks(block, expected_query, expected_params):
@@ -31,3 +32,16 @@ def test_where():
     query, params = render(':v', v=clauses.Where((V('x') == 4) & (V('y').like('xxx'))))
     assert 'WHERE x = $1 AND y LIKE $2' == query
     assert [4, 'xxx'] == params
+
+
+@pytest.mark.parametrize(
+    'value,expected', [
+        (0, 0),
+        (False, V('FALSE')),
+        ('', V('')),
+    ]
+)
+def test_falsey_values(value, expected):
+    query, params = render('WHERE :a', a=V('a') == value)
+    assert query == 'WHERE a = $1'
+    assert params == [expected]
