@@ -39,3 +39,4 @@ def test_falsey_values(value, expected):
     query, params = render('WHERE :a', a=V('a') == value)
     assert query == 'WHERE a = $1'
     assert params == [expected]
+    assert type(params[0]) == type(expected)
