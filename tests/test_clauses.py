@@ -34,7 +34,7 @@ def test_where():
     assert [4, 'xxx'] == params
 
 
-@pytest.mark.parametrize('value,expected', [(0, 0), (False, V('FALSE')), ('', V(''))])
+@pytest.mark.parametrize('value,expected', [(0, 0), (False, False), ('', '')])
 def test_falsey_values(value, expected):
     query, params = render('WHERE :a', a=V('a') == value)
     assert query == 'WHERE a = $1'
