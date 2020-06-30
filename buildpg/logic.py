@@ -47,6 +47,8 @@ class Operator(str, Enum):
     on = ' ON '
     as_ = ' AS '
     func = '_function_'
+    nulls_first = ' NULLS FIRST'
+    nulls_last = ' NULLS LAST'
 
 
 @unique
@@ -88,6 +90,8 @@ PRECEDENCE = {
     Operator.ge: 40,
     Operator.asc: 30,
     Operator.desc: 30,
+    Operator.nulls_first: 30,
+    Operator.nulls_last: 30,
     Operator.on: 30,
     Operator.as_: 30,
     Operator.and_: 20,
@@ -217,6 +221,12 @@ class SqlBlock(Component):
 
     def desc(self):
         return self.operate(Operator.desc)
+
+    def nulls_first(self):
+        return self.operate(Operator.nulls_first)
+
+    def nulls_last(self):
+        return self.operate(Operator.nulls_last)
 
     def comma(self, other):
         return self.operate(Operator.comma, other)

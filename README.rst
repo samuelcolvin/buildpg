@@ -139,6 +139,8 @@ Python operator/function   SQL operator
 ``comma``                 ``,``
 ``on``                    ``ON``
 ``as_``                   ``AS``
+``nulls_first``           ``NULLS FIRST``
+``nulls_last``            ``NULLS LAST``
 ========================  ==================
 
 Usage:
