@@ -105,6 +105,7 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: V('a').desc(), 'a DESC'),
         (lambda: V('a').nulls_first(), 'a NULLS FIRST'),
         (lambda: V('a').nulls_last(), 'a NULLS LAST'),
+        (lambda: V('a').desc().nulls_first(), 'a DESC NULLS FIRST'),
         (lambda: ~V('a'), 'not(a)'),
         (lambda: -V('a'), '-a'),
         (lambda: V('x').operate(RawDangerous(' foobar '), V('y')), 'x foobar y'),
