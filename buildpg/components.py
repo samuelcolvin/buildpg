@@ -82,7 +82,7 @@ class Component:
 
 
 class Values(Component):
-    __slots__ = 'values', 'names'
+    __slots__ = 'values', 'names', 'set'
 
     def __init__(self, *args, **kwargs):
         if (args and kwargs) or (not args and not kwargs):
@@ -104,6 +104,15 @@ class Values(Component):
         if not self.names:
             raise ComponentError(f'"names" are not available for nameless values')
         yield RawDangerous(', '.join(self.names))
+
+    def render_set(self):
+        if not self.names:
+            raise ComponentError(f'"set" are not available for nameless values')
+        yield RawDangerous('(')
+        yield RawDangerous(', '.join(self.names))
+        yield RawDangerous(') = (')
+        yield from yield_sep(self.values)
+        yield RawDangerous(')')
 
 
 class MultipleValues(Component):
