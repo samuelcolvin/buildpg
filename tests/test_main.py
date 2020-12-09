@@ -74,7 +74,7 @@ TESTS = [
     {
         'template': 'update table1 set :values__set from table2',
         'ctx': lambda: dict(values=Values(column1='table2.col1', column2='table2.col2')),
-        'expected_query': 'update table1 set (column1, column2) = ($1, $2) from table2',
+        'expected_query': 'update table1 set column1 = $1, column2 = $2 from table2',
         'expected_params': ['table2.col1', 'table2.col2'],
     },
 ]
