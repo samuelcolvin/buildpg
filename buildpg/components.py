@@ -77,12 +77,18 @@ class Component:
             else:
                 yield str(chunk)
 
+    @staticmethod
+    def _yield_pairs(k, v):
+        yield VarLiteral(k)
+        yield RawDangerous(' = ')
+        yield v
+
     def __repr__(self):
         return f'<SQL: "{self}">'
 
 
 class Values(Component):
-    __slots__ = 'values', 'names'
+    __slots__ = 'values', 'names', 'set'
 
     def __init__(self, *args, **kwargs):
         if (args and kwargs) or (not args and not kwargs):
@@ -92,6 +98,7 @@ class Values(Component):
             self.names = None
             self.values = args
         else:
+            self.kwargs = kwargs
             self.names, self.values = zip(*kwargs.items())
             check_word_many(self.names)
 
@@ -104,6 +111,15 @@ class Values(Component):
         if not self.names:
             raise ComponentError(f'"names" are not available for nameless values')
         yield RawDangerous(', '.join(self.names))
+
+    def render_set(self):
+        if not self.kwargs:
+            raise ComponentError(f'"set" is not available for nameless values')
+        iter_ = iter(self.kwargs.items())
+        yield from self._yield_pairs(*next(iter_))
+        for k, v in iter_:
+            yield RawDangerous(', ')
+            yield from self._yield_pairs(k, v)
 
 
 class MultipleValues(Component):
@@ -133,12 +149,6 @@ class SetValues(Component):
 
     def __init__(self, **kwargs):
         self.kwargs = kwargs
-
-    @staticmethod
-    def _yield_pairs(k, v):
-        yield VarLiteral(k)
-        yield RawDangerous(' = ')
-        yield v
 
     def render(self):
         iter_ = iter(self.kwargs.items())
