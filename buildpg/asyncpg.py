@@ -3,6 +3,7 @@ from textwrap import indent
 
 from asyncpg import *  # noqa
 from asyncpg.pool import Pool
+from asyncpg.protocol import Record
 
 from .main import render
 
@@ -97,6 +98,7 @@ def create_pool_b(
     init=None,
     loop=None,
     connection_class=BuildPgConnection,
+    record_class=Record,
     **connect_kwargs,
 ):
     """
@@ -112,6 +114,7 @@ def create_pool_b(
     return BuildPgPool(
         dsn,
         connection_class=connection_class,
+        record_class=record_class,
         min_size=min_size,
         max_size=max_size,
         max_queries=max_queries,
