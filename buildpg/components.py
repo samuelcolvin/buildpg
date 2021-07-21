@@ -102,7 +102,7 @@ class Values(Component):
 
     def render_names(self):
         if not self.names:
-            raise ComponentError(f'"names" are not available for nameless values')
+            raise ComponentError('"names" are not available for nameless values')
         yield RawDangerous(', '.join(self.names))
 
 

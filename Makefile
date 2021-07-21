@@ -1,11 +1,12 @@
 .DEFAULT_GOAL := all
-isort = isort -rc buildpg tests
-black = black -S -l 120 --py36 buildpg tests
+isort = isort buildpg tests
+black = black -S -l 120 --target-version py38 buildpg tests
 
 .PHONY: install
 install:
 	pip install -U setuptools pip
 	pip install -U -r tests/requirements.txt
+	pip install -r tests/requirements-linting.txt
 	pip install -e .
 
 .PHONY: format
@@ -15,7 +16,6 @@ format:
 
 .PHONY: lint
 lint:
-	python setup.py check -rms
 	flake8 buildpg/ tests/
 	$(isort) --check-only
 	$(black) --check
@@ -31,4 +31,4 @@ testcov:
 	@coverage html
 
 .PHONY: all
-all: testcov lint
+all: lint testcov

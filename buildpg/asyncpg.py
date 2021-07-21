@@ -3,14 +3,15 @@ from textwrap import indent
 
 from asyncpg import *  # noqa
 from asyncpg.pool import Pool
+from asyncpg.protocol import Record
 
 from .main import render
 
 try:
     import sqlparse
     from pygments import highlight
-    from pygments.lexers.sql import PlPgsqlLexer
     from pygments.formatters import Terminal256Formatter
+    from pygments.lexers.sql import PlPgsqlLexer
 except ImportError:  # pragma: no cover
     sqlparse = None
 
@@ -97,6 +98,7 @@ def create_pool_b(
     init=None,
     loop=None,
     connection_class=BuildPgConnection,
+    record_class=Record,
     **connect_kwargs,
 ):
     """
@@ -119,5 +121,6 @@ def create_pool_b(
         setup=setup,
         init=init,
         max_inactive_connection_lifetime=max_inactive_connection_lifetime,
+        record_class=record_class,
         **connect_kwargs,
     )

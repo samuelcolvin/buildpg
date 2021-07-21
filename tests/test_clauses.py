@@ -43,8 +43,7 @@ def test_falsey_values(value, expected):
 
 
 def test_args():
-    query, params = render('WHERE :a', a=V('a') == True)
+    query, params = render('WHERE :a', a=V('a') == True)  # noqa: E712
     assert query == 'WHERE a = $1'
     assert params == [True]
-    assert type(params[0]) == type(True)
-
+    assert params[0] is True
