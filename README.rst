@@ -87,8 +87,8 @@ Both the pool and connections have ``*_b`` variants of all common query methods:
 - ``fetchrow_b``
 - ``cursor_b``
 
-.. |BuildStatus| image:: https://travis-ci.com/samuelcolvin/buildpg.svg?branch=master
-   :target: https://travis-ci.com/samuelcolvin/buildpg
+.. |BuildStatus| image:: https://github.com/samuelcolvin/buildpg/workflows/ci/badge.svg?event=push
+   :target: https://github.com/samuelcolvin/aioaws/actions?query=event%3Apush+branch%3Amaster+workflow%3Aci
 .. |Coverage| image:: https://codecov.io/gh/samuelcolvin/buildpg/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/samuelcolvin/buildpg/
 .. |pypi| image:: https://img.shields.io/pypi/v/buildpg.svg
