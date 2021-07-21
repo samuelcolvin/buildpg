@@ -96,8 +96,8 @@ jobs:
 
       - run: twine check dist/*
 
-      - name: check tag
-        run: PACKAGE=buildpg python <(curl -Ls https://git.io/JvQsH)
+      - name: set version
+        run: VERSION_PATH='buildpg/version.py' python <(curl -Ls https://git.io/JT3rm)
 
       - name: upload to pypi
         run: twine upload dist/*
