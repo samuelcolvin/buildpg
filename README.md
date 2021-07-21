@@ -1,6 +1,6 @@
 # buildpg
 
-[![CI](https://github.com/samuelcolvin/buildpg/workflows/CI/badge.svg?event=push)](https://github.com/samuelcolvin/buildpg/actions?query=event%3Apush+branch%3Amaster+workflow%3ACI)
+[![CI](https://github.com/samuelcolvin/buildpg/workflows/ci/badge.svg?event=push)](https://github.com/samuelcolvin/buildpg/actions?query=event%3Apush+branch%3Amaster+workflow%3Aci)
 [![Coverage](https://codecov.io/gh/samuelcolvin/buildpg/branch/master/graph/badge.svg)](https://codecov.io/gh/samuelcolvin/buildpg)
 [![pypi](https://img.shields.io/pypi/v/buildpg.svg)](https://pypi.python.org/pypi/buildpg)
 [![versions](https://img.shields.io/pypi/pyversions/buildpg.svg)](https://github.com/samuelcolvin/buildpg)
@@ -58,9 +58,7 @@ render('insert into the_table (:values__names) values :values', values=Values(a=
 >> 'insert into the_table (a, b, c) values ($1, $2, $3)', [123, 456, 'hello']
 ```
 
-With asyncpg
-............
-
+## With asyncpg
 
 As a wrapper around *asyncpg*:
 
