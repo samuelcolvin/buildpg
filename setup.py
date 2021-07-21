@@ -14,7 +14,7 @@ version = SourceFileLoader('version', 'buildpg/version.py').load_module()
 
 setup(
     name='buildpg',
-    version=str(version.VERSION),
+    version=version.VERSION,
     description=description,
     long_description=long_description,
     classifiers=[
