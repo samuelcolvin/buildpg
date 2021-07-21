@@ -5,7 +5,7 @@ from setuptools import setup
 description = 'Query building for the postgresql prepared statements and asyncpg.'
 THIS_DIR = Path(__file__).resolve().parent
 try:
-    long_description = THIS_DIR.joinpath('README.rst').read_text()
+    long_description = THIS_DIR.joinpath('README.md').read_text()
 except FileNotFoundError:
     long_description = description
 
@@ -17,6 +17,7 @@ setup(
     version=version.VERSION,
     description=description,
     long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
