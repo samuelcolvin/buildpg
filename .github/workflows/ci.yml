@@ -87,17 +87,15 @@ jobs:
           python-version: '3.8'
 
       - name: install
-        run: |
-          pip install -U pip setuptools wheel twine
-          pip install .
+        run: pip install -U pip setuptools twine wheel
+
+      - name: set version
+        run: VERSION_PATH='buildpg/version.py' python <(curl -Ls https://git.io/JT3rm)
 
       - name: build
         run: python setup.py sdist bdist_wheel
 
       - run: twine check dist/*
-
-      - name: set version
-        run: VERSION_PATH='buildpg/version.py' python <(curl -Ls https://git.io/JT3rm)
 
       - name: upload to pypi
         run: twine upload dist/*
