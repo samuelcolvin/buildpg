@@ -57,13 +57,12 @@ async def _reset_db():
 
 @pytest.fixture(scope='session')
 def db():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(_reset_db())
+    asyncio.run(_reset_db())
 
 
-@pytest.yield_fixture
-async def conn(loop, db):
-    conn = await asyncpg.connect_b(f'postgresql://postgres@localhost/{DB_NAME}', loop=loop)
+@pytest.fixture
+async def conn(db):
+    conn = await asyncpg.connect_b(f'postgresql://postgres@localhost/{DB_NAME}')
     tr = conn.transaction()
     await tr.start()
 

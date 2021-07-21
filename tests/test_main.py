@@ -108,7 +108,7 @@ def test_different_regex():
         (
             ':a__missing',
             dict(a=1),
-            '"a": error building content, ' 'AttributeError: \'int\' object has no attribute \'render_missing\'',
+            '"a": error building content, AttributeError: \'int\' object has no attribute \'render_missing\'',
         ),
     ],
 )

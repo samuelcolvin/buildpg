@@ -5,7 +5,7 @@ from setuptools import setup
 description = 'Query building for the postgresql prepared statements and asyncpg.'
 THIS_DIR = Path(__file__).resolve().parent
 try:
-    long_description = THIS_DIR.joinpath('README.rst').read_text()
+    long_description = THIS_DIR.joinpath('README.md').read_text()
 except FileNotFoundError:
     long_description = description
 
@@ -14,17 +14,19 @@ version = SourceFileLoader('version', 'buildpg/version.py').load_module()
 
 setup(
     name='buildpg',
-    version=str(version.VERSION),
+    version=version.VERSION,
     description=description,
     long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: SQL',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',

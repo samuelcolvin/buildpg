@@ -1,8 +1,12 @@
 from datetime import datetime
 
+import pytest
+
 from buildpg import MultipleValues, S, V, Values, asyncpg, funcs, render, select_fields
 
 from .conftest import DB_NAME
+
+pytestmark = pytest.mark.asyncio
 
 
 async def test_manual_select(conn):
