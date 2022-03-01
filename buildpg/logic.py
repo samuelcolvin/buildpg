@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import Union
 
-from .components import Component, RawDangerous, VarLiteral, check_word, yield_sep
+from .components import Component, JoinComponent, RawDangerous, VarLiteral, check_word, yield_sep
 
 __all__ = ('LogicError', 'SqlBlock', 'Func', 'Not', 'Var', 'S', 'V', 'select_fields', 'Empty')
 
@@ -317,10 +317,7 @@ class Var(SqlBlock):
 
 
 def select_fields(arg, *args):
-    v = as_var(arg)
-    for a in args:
-        v = v.comma(as_var(a))
-    return v
+    return JoinComponent([as_var(v) for v in (arg,) + args])
 
 
 class Empty(SqlBlock):

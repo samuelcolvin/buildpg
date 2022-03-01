@@ -12,6 +12,7 @@ __all__ = (
     'Values',
     'MultipleValues',
     'SetValues',
+    'JoinComponent',
 )
 
 NOT_WORD = re.compile(r'[^\w.*]', flags=re.A)
@@ -146,3 +147,14 @@ class SetValues(Component):
         for k, v in iter_:
             yield RawDangerous(', ')
             yield from self._yield_pairs(k, v)
+
+
+class JoinComponent(Component):
+    __slots__ = 'sep', 'items'
+
+    def __init__(self, items, sep=RawDangerous(', ')):
+        self.items = items
+        self.sep = sep
+
+    def render(self):
+        yield from yield_sep(self.items, self.sep)
