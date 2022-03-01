@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import Union
 
-from .components import Component, RawDangerous, VarLiteral, check_word, yield_sep, JoinComponent
+from .components import Component, JoinComponent, RawDangerous, VarLiteral, check_word, yield_sep
 
 __all__ = ('LogicError', 'SqlBlock', 'Func', 'Not', 'Var', 'S', 'V', 'select_fields', 'Empty')
 
