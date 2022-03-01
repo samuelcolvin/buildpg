@@ -164,3 +164,13 @@ def test_simple_blocks(block, expected_query):
 )
 def test_block_repr(block, s):
     assert s == repr(block())
+
+
+def test_recursion():
+    # without JoinComponent this would cause a recursion error, see #35
+    values = [f'foo_{i}' for i in range(5000)]
+    query, query_args = render(':t', t=funcs.comma_sep(*values))
+
+    assert query.startswith('$1, $2')
+    assert query.endswith('$4998, $4999, $5000')
+    assert len(query_args) == 5000

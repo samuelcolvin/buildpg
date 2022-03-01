@@ -1,4 +1,5 @@
 from . import logic
+from .components import JoinComponent
 
 
 def AND(arg, *args):
@@ -16,10 +17,7 @@ def OR(arg, *args):
 
 
 def comma_sep(arg, *args):
-    v = logic.as_sql_block(arg)
-    for a in args:
-        v = v.comma(a)
-    return v
+    return JoinComponent((arg,) + args)
 
 
 def count(expr):
