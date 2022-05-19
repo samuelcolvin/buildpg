@@ -21,6 +21,8 @@ NOT_WORD = re.compile(r'[^\w.*]', flags=re.A)
 def check_word(s):
     if not isinstance(s, str):
         raise TypeError('value is not a string')
+    if not len(s) >= 1:
+        raise TypeError('value must be > 0 characters')
     if NOT_WORD.search(s):
         raise UnsafeError(f'str contain unsafe (non word) characters: "{s}"')
 
@@ -55,10 +57,22 @@ def yield_sep(iterable, sep=RawDangerous(', ')):
         yield v
 
 
+def quote_ident(s: str):
+    if not re.match(r'^[a-z]+$', s):
+        return f'"{s}"'
+    return s
+
 class VarLiteral(RawDangerous):
     def __init__(self, s: str):
         check_word(s)
         str.__init__(s)
+    def __new__(cls, content):
+        return str.__new__(
+            cls,
+            '.'.join(
+                [quote_ident(c) for c in content.split('.')]
+                )
+        )
 
 
 class Component:
