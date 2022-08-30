@@ -45,8 +45,8 @@ if spam_value:
 if exclude_cake:
    where_logic &= funcs.not_(V('foo.cake').in_([1, 2, 3]))
 
-render('select * from foo :where', where=where_logic)
->> 'select * from foo foo.bar = $1 AND foo.spam <= $2 AND not(foo.cake in $3)', [123, 123, ['x', 'y']]
+render('select * from foo where :where', where=where_logic)
+>> 'select * from foo where foo.bar = $1 AND foo.spam <= $2 AND not(foo.cake in $3)', [123, 123, ['x', 'y']]
 ```
 
 Values usage:
