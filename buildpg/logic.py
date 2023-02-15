@@ -49,6 +49,8 @@ class Operator(str, Enum):
     func = '_function_'
     nulls_first = ' NULLS FIRST'
     nulls_last = ' NULLS LAST'
+    is_distinct_from = ' is distinct from '
+    is_not_distinct_from = ' is not distinct from '
 
 
 @unique
@@ -82,6 +84,8 @@ PRECEDENCE = {
     Operator.matches: 35,
     Operator.is_: 35,
     Operator.is_not: 35,
+    Operator.is_distinct_from: 35,
+    Operator.is_not_distinct_from: 35,
     Operator.eq: 40,
     Operator.ne: 40,
     Operator.lt: 40,
@@ -227,6 +231,12 @@ class SqlBlock(Component):
 
     def nulls_last(self):
         return self.operate(Operator.nulls_last)
+
+    def is_distinct_from(self, other):
+        return self.operate(Operator.is_distinct_from, other)
+
+    def is_not_distinct_from(self, other):
+        return self.operate(Operator.is_not_distinct_from, other)
 
     def comma(self, other):
         return self.operate(Operator.comma, other)

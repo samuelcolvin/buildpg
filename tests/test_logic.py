@@ -137,6 +137,9 @@ def test_render(template, var, expected_query, expected_params):
         (lambda: V('foo').matches(V('bar')), 'foo @@ bar'),
         (lambda: V('foo').is_(V('bar')), 'foo is bar'),
         (lambda: V('foo').is_not(V('bar')), 'foo is not bar'),
+        (lambda: V('foo').is_distinct_from(V('bar')), 'foo is distinct from bar'),
+        (lambda: V('foo').is_not_distinct_from(V('bar')), 'foo is not distinct from bar'),
+
         (
             lambda: funcs.to_tsvector('fat cats ate rats').matches(funcs.to_tsquery('cat & rat')),
             'to_tsvector($1) @@ to_tsquery($2)',
