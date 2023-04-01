@@ -1,6 +1,7 @@
 import pytest
 
 from buildpg import V, clauses, render
+from buildpg.funcs import count
 
 
 @pytest.mark.parametrize(
@@ -47,3 +48,9 @@ def test_args():
     assert query == 'WHERE a = $1'
     assert params == [True]
     assert params[0] is True
+
+
+def test_having():
+    query, params = render(':v', v=clauses.Having(count('name') < 2))
+    assert 'HAVING COUNT(name) < $1' == query
+    assert [2] == params
