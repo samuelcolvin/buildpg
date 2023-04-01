@@ -1,6 +1,6 @@
 import pytest
 
-from buildpg import V, clauses, render, funcs
+from buildpg import V, clauses, funcs, render
 
 
 @pytest.mark.parametrize(
