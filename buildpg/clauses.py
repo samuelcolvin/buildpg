@@ -99,3 +99,7 @@ class Offset(Clause):
 
     def __init__(self, offset_value):
         super().__init__(offset_value)
+
+
+class Having(Clause):
+    base = 'HAVING'
